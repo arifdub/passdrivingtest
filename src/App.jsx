@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import SITE_CONFIG from "./siteConfig";
+import ADI_CATEGORIES from "./adiQuizData";
 import {
   Home as HomeIcon, BookOpen, CalendarCheck, Menu as MenuIcon, X as CloseIcon,
   ChevronRight, ChevronLeft, Shuffle, Check, Undo2, ListFilter, ArrowRight,
@@ -363,20 +364,369 @@ function TheoryTestPage({ go }) {
   );
 }
 
+/* =========================================================================
+   ADI STAGE 1 THEORY PRACTICE
+   Ported from a standalone practice tool into the site's own theme.
+   Best scores persist in the visitor's browser (localStorage) so this is
+   safe and works the same once deployed on the live site.
+   ========================================================================= */
+const ADI_BEST_KEY = "adi-quiz-best-scores-v1";
+
+function loadAdiBest() {
+  try {
+    return JSON.parse(localStorage.getItem(ADI_BEST_KEY)) || {};
+  } catch (e) {
+    return {};
+  }
+}
+function saveAdiBest(catId, score, total) {
+  try {
+    const data = loadAdiBest();
+    const pct = Math.round((score / total) * 100);
+    if (!data[catId] || pct > data[catId]) {
+      data[catId] = pct;
+      localStorage.setItem(ADI_BEST_KEY, JSON.stringify(data));
+    }
+    return data;
+  } catch (e) {
+    return loadAdiBest();
+  }
+}
+
+function shuffledIndices(n) {
+  const arr = Array.from({ length: n }, (_, i) => i);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Each category's colour family loosely mirrors real sign colours, same
+// idea as the Rules of the Road flashcard categories.
+const ADI_SIGN_STYLE = {
+  regulatory: { bar: "bg-red-600", pill: "bg-red-50 text-red-700" },
+  warning: { bar: "bg-amber-500", pill: "bg-amber-50 text-amber-800" },
+  info: { bar: "bg-blue-600", pill: "bg-blue-50 text-blue-700" },
+  national: { bar: "bg-emerald-600", pill: "bg-emerald-50 text-emerald-700" },
+};
+
+function AdiCategoryGrid({ best, onStart }) {
+  return (
+    <div className="grid sm:grid-cols-2 gap-4">
+      {ADI_CATEGORIES.map((cat, i) => {
+        const style = ADI_SIGN_STYLE[cat.signType] || ADI_SIGN_STYLE.info;
+        const bestPct = best[cat.id];
+        return (
+          <button
+            key={cat.id}
+            onClick={() => onStart(cat)}
+            className="text-left bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-slate-300 transition flex flex-col"
+          >
+            <div className={`h-1.5 ${style.bar}`} />
+            <div className="p-5">
+              <p className="font-mono text-xs font-bold text-slate-400 tracking-widest">
+                SECTION {String(i + 1).padStart(2, "0")}
+              </p>
+              <h3 className="mt-2 font-black text-slate-900 text-lg leading-snug">{cat.title}</h3>
+              <p className="mt-1.5 text-sm text-slate-500">{cat.blurb}</p>
+              <span className={`mt-3 inline-block text-xs font-bold px-2.5 py-1 rounded-full ${style.pill}`}>
+                Real exam pass mark: {cat.passMarkPct}% ({cat.realExamQuestions} Qs)
+              </span>
+              <div className="mt-4 flex items-center justify-between text-xs font-mono font-bold text-slate-500">
+                <span>{cat.questions.length} practice questions</span>
+                <span className={bestPct !== undefined ? "text-emerald-700" : ""}>
+                  {bestPct !== undefined ? `Best: ${bestPct}%` : "Not attempted"}
+                </span>
+              </div>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function AdiQuizScreen({ cat, onFinish, onExitToCategories }) {
+  const [order] = useState(() => shuffledIndices(cat.questions.length));
+  const [qIndex, setQIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [answered, setAnswered] = useState(false);
+  const [chosenDisplayIndex, setChosenDisplayIndex] = useState(null);
+  const [optionOrder, setOptionOrder] = useState(() => shuffledIndices(cat.questions[order[0]].options.length));
+  const attemptLog = useRef([]);
+
+  const total = cat.questions.length;
+  const q = cat.questions[order[qIndex]];
+  const correctDisplayIndex = optionOrder.indexOf(q.correct);
+  const letters = ["A", "B", "C", "D", "E", "F"];
+
+  const selectAnswer = (displayIndex) => {
+    if (answered) return;
+    setAnswered(true);
+    setChosenDisplayIndex(displayIndex);
+    const isCorrect = displayIndex === correctDisplayIndex;
+    if (isCorrect) setScore(s => s + 1);
+    attemptLog.current.push({
+      question: q.q,
+      chosenText: q.options[optionOrder[displayIndex]],
+      correctText: q.options[q.correct],
+      correct: isCorrect,
+      explain: q.explain,
+    });
+  };
+
+  const nextQuestion = () => {
+    if (!answered) return;
+    const nextIndex = qIndex + 1;
+    if (nextIndex >= total) {
+      onFinish({ score, total, log: attemptLog.current });
+    } else {
+      setQIndex(nextIndex);
+      setAnswered(false);
+      setChosenDisplayIndex(null);
+      setOptionOrder(shuffledIndices(cat.questions[order[nextIndex]].options.length));
+    }
+  };
+
+  const pct = Math.round((qIndex / total) * 100);
+
+  return (
+    <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
+      <button
+        onClick={onExitToCategories}
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-700 mb-5"
+      >
+        <ChevronLeft size={14} /> All sections
+      </button>
+
+      <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
+        <span className="font-black text-slate-900">{cat.title}</span>
+        <span className="font-mono text-xs font-bold text-slate-500">PASS MARK: {cat.passMarkPct}%</span>
+      </div>
+
+      {/* progress */}
+      <div className="mb-6">
+        <div className="h-3 bg-slate-200 rounded-full relative overflow-visible">
+          <div className="h-full bg-emerald-500 rounded-full transition-all duration-300" style={{ width: `${pct}%` }} />
+          <div
+            className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-lg leading-none"
+            style={{ left: `${pct}%`, transform: "translate(-50%, -50%)" }}
+          >
+            🚗
+          </div>
+        </div>
+        <div className="flex justify-between mt-2 font-mono text-xs font-bold text-slate-500">
+          <span>QUESTION {qIndex + 1} / {total}</span>
+          <span>SCORE {score}</span>
+        </div>
+      </div>
+
+      {/* question card */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm">
+        <p className="text-xl sm:text-2xl font-black text-slate-900 leading-snug mb-6">{q.q}</p>
+
+        <div className="flex flex-col gap-3">
+          {optionOrder.map((origIndex, displayIndex) => {
+            const isChosen = chosenDisplayIndex === displayIndex;
+            const isCorrectOpt = displayIndex === correctDisplayIndex;
+            let stateClasses = "border-slate-200 hover:border-emerald-400 hover:bg-emerald-50";
+            let letterClasses = "border-slate-200 bg-slate-50 text-slate-500";
+            if (answered) {
+              if (isCorrectOpt) {
+                stateClasses = "border-emerald-500 bg-emerald-50";
+                letterClasses = "border-emerald-500 bg-emerald-500 text-white";
+              } else if (isChosen) {
+                stateClasses = "border-red-500 bg-red-50";
+                letterClasses = "border-red-500 bg-red-500 text-white";
+              } else {
+                stateClasses = "border-slate-200 opacity-50";
+              }
+            }
+            return (
+              <button
+                key={origIndex}
+                disabled={answered}
+                onClick={() => selectAnswer(displayIndex)}
+                className={`flex items-center gap-3.5 text-left border-2 rounded-xl px-4 py-3.5 font-bold text-slate-800 transition ${stateClasses}`}
+              >
+                <span className={`w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 font-black text-sm ${letterClasses}`}>
+                  {letters[displayIndex]}
+                </span>
+                <span>{q.options[origIndex]}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {answered && (
+          <div className="mt-5 rounded-xl bg-blue-50 border-l-4 border-blue-600 p-4 text-sm text-slate-700 leading-relaxed">
+            <b className="text-blue-800">{chosenDisplayIndex === correctDisplayIndex ? "Correct." : "Not quite."}</b> {q.explain}
+          </div>
+        )}
+
+        <div className="flex justify-end mt-6">
+          <button
+            disabled={!answered}
+            onClick={nextQuestion}
+            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold px-6 py-3 rounded-xl transition"
+          >
+            {qIndex === total - 1 ? "See results" : "Next question"} <ArrowRight size={16} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdiResultsScreen({ cat, result, onRetry, onAllSections }) {
+  const { score, total, log } = result;
+  const pct = Math.round((score / total) * 100);
+  const passed = pct >= cat.passMarkPct;
+
+  return (
+    <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
+      <div className="bg-white border border-slate-200 rounded-2xl p-7 sm:p-10 text-center shadow-sm">
+        <p className={`text-6xl sm:text-7xl font-black ${passed ? "text-emerald-600" : "text-red-600"}`}>{pct}%</p>
+        <p className="mt-3 text-slate-600 font-bold">{score} of {total} correct &middot; {cat.title}</p>
+        <p className="mt-1 text-xs font-mono font-bold text-slate-400">
+          Real exam pass mark for this section: {cat.passMarkPct}% ({cat.realExamQuestions} questions on the actual test)
+        </p>
+        <span className={`inline-block mt-5 px-4 py-2 rounded-full text-sm font-black
+          ${passed ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+          {passed ? "Above pass mark" : "Below pass mark — keep practising"}
+        </span>
+      </div>
+
+      <div className="mt-8">
+        <p className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">Review this section</p>
+        <div className="space-y-3">
+          {log.map((entry, i) => (
+            <div key={i} className={`bg-white border rounded-xl p-4 ${entry.correct ? "border-emerald-200 border-l-4 border-l-emerald-500" : "border-red-200 border-l-4 border-l-red-500"}`}>
+              <p className="font-bold text-slate-900 text-sm mb-2">{entry.question}</p>
+              <p className="text-sm text-slate-600">Your answer: <b className="text-slate-900">{entry.chosenText}</b></p>
+              {!entry.correct && (
+                <p className="text-sm text-slate-600">Correct answer: <b className="text-slate-900">{entry.correctText}</b></p>
+              )}
+              <p className="text-sm text-slate-500 mt-2 leading-relaxed">{entry.explain}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3 mt-7">
+        <button
+          onClick={onRetry}
+          className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-3 rounded-xl transition"
+        >
+          Retry this section
+        </button>
+        <button
+          onClick={onAllSections}
+          className="inline-flex items-center gap-2 border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-bold px-5 py-3 rounded-xl transition"
+        >
+          Choose another section
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AdiQuizApp({ onBack }) {
+  const [stage, setStage] = useState("categories"); // categories | quiz | results
+  const [currentCat, setCurrentCat] = useState(null);
+  const [result, setResult] = useState(null);
+  const [best, setBest] = useState(() => loadAdiBest());
+  const [quizKey, setQuizKey] = useState(0); // bump to force a fresh AdiQuizScreen instance
+
+  const startQuiz = (cat) => {
+    setCurrentCat(cat);
+    setResult(null);
+    setQuizKey(k => k + 1);
+    setStage("quiz");
+  };
+
+  const finishQuiz = ({ score, total, log }) => {
+    const updated = saveAdiBest(currentCat.id, score, total);
+    setBest(updated);
+    setResult({ score, total, log });
+    setStage("results");
+  };
+
+  return (
+    <div>
+      <div className="bg-slate-900 text-white">
+        <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-10">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 mb-4"
+          >
+            <ChevronLeft size={14} /> Back to Learning Materials
+          </button>
+          <span className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-400 text-slate-900">
+            RSA &middot; Approved Driving Instructor
+          </span>
+          <h1 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight">ADI Stage 1 Theory Practice</h1>
+          <p className="mt-2 text-slate-300 text-sm sm:text-base max-w-xl">
+            Practice questions across all 5 official sections of the ADI Stage 1 theory test, grounded
+            in RSA source material — the Driving Instructor's Handbook, official sample questions, and
+            the Driver Tester Marking Guidelines.
+          </p>
+          <p className="mt-3 text-xs text-slate-400 max-w-xl leading-relaxed border-t border-slate-800 pt-3">
+            On the real exam you must pass each of the 5 sections individually — failing one section
+            fails the whole test. Category-specific content shown here covers Car &amp; Work Vehicles (B/W).
+          </p>
+        </div>
+      </div>
+
+      {stage === "categories" && (
+        <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
+          <AdiCategoryGrid best={best} onStart={startQuiz} />
+        </div>
+      )}
+
+      {stage === "quiz" && currentCat && (
+        <AdiQuizScreen
+          key={quizKey}
+          cat={currentCat}
+          onFinish={finishQuiz}
+          onExitToCategories={() => setStage("categories")}
+        />
+      )}
+
+      {stage === "results" && currentCat && result && (
+        <AdiResultsScreen
+          cat={currentCat}
+          result={result}
+          onRetry={() => startQuiz(currentCat)}
+          onAllSections={() => setStage("categories")}
+        />
+      )}
+
+      <div className="max-w-2xl mx-auto px-5 sm:px-8 pb-10 text-center text-xs text-slate-400 leading-relaxed">
+        Content grounded in RSA's Driving Instructor's Handbook, official ADI Stage 1 sample questions,
+        and the RSA Driver Tester Marking Guidelines. This is an independent practice tool, not
+        affiliated with the RSA — always confirm current requirements at rsa.ie.
+      </div>
+    </div>
+  );
+}
+
 function ADITestPage({ go }) {
   return (
     <ResourcePage
       go={go}
       icon={GraduationCap}
       title="ADI Test Preparation"
-      tagline="Study material for candidates preparing for the Approved Driving Instructor (ADI) qualifying exams."
+      tagline="Practice for the ADI Stage 1 theory test — 151 practice questions across all 5 official exam sections, grounded in RSA source material."
       points={[
-        "ADI Part 1: theory and hazard perception",
-        "ADI Part 2: instructor driving ability",
-        "ADI Part 3: instructional technique",
-        "Guidance on the RSA's ADI registration process",
+        "Driver Testing Procedures & Documentation (20 Qs on the real test, 70% pass mark)",
+        "Road Safety Precepts & Practices (25 Qs, 72% pass mark)",
+        "Pedagogy — Teaching Ability (15 Qs, 60% pass mark)",
+        "Basic Mechanics & Vehicle Maintenance (20 Qs, 70% pass mark)",
+        "Category-Specific: Car & Work Vehicles B/W (20 Qs, 70% pass mark)",
       ]}
-      comingSoon="Dedicated ADI study material is on the way. This section will grow alongside the rest of the site."
+      cta={{ view: "adi-quiz", label: "Start ADI Stage 1 Practice" }}
     />
   );
 }
@@ -1471,6 +1821,7 @@ export default function App() {
   else if (view === "rules") content = <RulesOfRoadPage go={go} />;
   else if (view === "theory") content = <TheoryTestPage go={go} />;
   else if (view === "adi") content = <ADITestPage go={go} />;
+  else if (view === "adi-quiz") content = <AdiQuizApp onBack={() => go("adi")} />;
   else if (view === "flashcards-hub") content = <FlashcardsHub go={go} />;
   else if (view === "flashcards-deck") {
     content = (
