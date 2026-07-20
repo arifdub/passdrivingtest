@@ -1354,7 +1354,10 @@ function MobileHeader({ view, go, menuOpen, setMenuOpen }) {
             </button>
           </nav>
           <div className="mt-4 pt-4 border-t border-slate-800 text-slate-400 text-xs space-y-1.5">
-            <a href={`tel:${SITE_CONFIG.phoneTel}`} className="flex items-center gap-2 hover:text-emerald-400"><Phone size={13} /> {SITE_CONFIG.phoneDisplay}</a>
+            <div className="flex items-center gap-3">
+              <a href={`tel:${SITE_CONFIG.phoneTel}`} className="flex items-center gap-2 hover:text-emerald-400"><Phone size={13} /> {SITE_CONFIG.phoneDisplay}</a>
+              <WhatsAppLink size={15} />
+            </div>
             <a href={`mailto:${SITE_CONFIG.email}`} className="flex items-center gap-2 hover:text-emerald-400"><Mail size={13} /> {SITE_CONFIG.email}</a>
             <p className="flex items-center gap-2"><MapPin size={13} /> {SITE_CONFIG.address}</p>
           </div>
@@ -1400,7 +1403,10 @@ function SiteFooter() {
         </div>
         <div className="text-sm space-y-2">
           <p className="font-bold text-white mb-2">Contact</p>
-          <a href={`tel:${SITE_CONFIG.phoneTel}`} className="flex items-center gap-2 hover:text-emerald-400"><Phone size={14} /> {SITE_CONFIG.phoneDisplay}</a>
+          <div className="flex items-center gap-3">
+            <a href={`tel:${SITE_CONFIG.phoneTel}`} className="flex items-center gap-2 hover:text-emerald-400"><Phone size={14} /> {SITE_CONFIG.phoneDisplay}</a>
+            <WhatsAppLink size={16} />
+          </div>
           <a href={`mailto:${SITE_CONFIG.email}`} className="flex items-center gap-2 hover:text-emerald-400"><Mail size={14} /> {SITE_CONFIG.email}</a>
           <p className="flex items-center gap-2"><MapPin size={14} /> {SITE_CONFIG.address}</p>
         </div>
@@ -1422,20 +1428,26 @@ function SiteFooter() {
 }
 
 /* =========================================================================
-   STICKY WHATSAPP BUTTON — visible on every page.
+   WHATSAPP ICON — small inline icon used right beside the phone number.
    ========================================================================= */
-function WhatsAppButton() {
+function WhatsAppIcon({ size = 16 }) {
+  return (
+    <svg viewBox="0 0 32 32" width={size} height={size} fill="currentColor" aria-hidden="true">
+      <path d="M16.02 3C9.4 3 4 8.36 4 14.94c0 2.2.6 4.26 1.66 6.04L4 29l8.24-2.6a12.9 12.9 0 0 0 3.78.57h.01c6.62 0 12.02-5.36 12.02-11.94C28.05 8.36 22.65 3 16.02 3zm0 21.7h-.01a10.6 10.6 0 0 1-5.4-1.48l-.39-.23-4.02 1.27 1.3-3.9-.25-.4a9.86 9.86 0 0 1-1.53-5.3c0-5.46 4.48-9.9 10-9.9 2.67 0 5.18 1.04 7.07 2.92a9.8 9.8 0 0 1 2.92 7c0 5.46-4.48 9.92-9.99 9.92zm5.48-7.43c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.24-.46-2.37-1.46-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.5-.17 0-.37-.02-.57-.02s-.52.07-.8.37c-.27.3-1.04 1.02-1.04 2.47 0 1.46 1.07 2.87 1.22 3.07.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35z"/>
+    </svg>
+  );
+}
+
+function WhatsAppLink({ size = 16, className = "" }) {
   return (
     <a
       href={`https://wa.me/${SITE_CONFIG.whatsappNumber}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"
-      className="fixed z-40 right-4 sm:right-6 bottom-24 sm:bottom-6 w-14 h-14 rounded-full bg-green-500 hover:bg-green-400 shadow-lg shadow-green-900/30 flex items-center justify-center transition"
+      className={`text-green-500 hover:text-green-400 transition ${className}`}
     >
-      <svg viewBox="0 0 32 32" width="28" height="28" fill="white" aria-hidden="true">
-        <path d="M16.02 3C9.4 3 4 8.36 4 14.94c0 2.2.6 4.26 1.66 6.04L4 29l8.24-2.6a12.9 12.9 0 0 0 3.78.57h.01c6.62 0 12.02-5.36 12.02-11.94C28.05 8.36 22.65 3 16.02 3zm0 21.7h-.01a10.6 10.6 0 0 1-5.4-1.48l-.39-.23-4.02 1.27 1.3-3.9-.25-.4a9.86 9.86 0 0 1-1.53-5.3c0-5.46 4.48-9.9 10-9.9 2.67 0 5.18 1.04 7.07 2.92a9.8 9.8 0 0 1 2.92 7c0 5.46-4.48 9.92-9.99 9.92zm5.48-7.43c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.24-.46-2.37-1.46-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.5-.17 0-.37-.02-.57-.02s-.52.07-.8.37c-.27.3-1.04 1.02-1.04 2.47 0 1.46 1.07 2.87 1.22 3.07.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35z"/>
-      </svg>
+      <WhatsAppIcon size={size} />
     </a>
   );
 }
@@ -1480,7 +1492,6 @@ export default function App() {
 
       {!isFlashcardDeck && <SiteFooter />}
       <BottomTabBar view={view} go={go} onMore={() => setMenuOpen(o => !o)} />
-      <WhatsAppButton />
     </div>
   );
 }
