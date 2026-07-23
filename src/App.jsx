@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import SITE_CONFIG from "./siteConfig";
 import ADI_CATEGORIES from "./adiQuizData";
+import ADI_THEORY_PRACTICE_CATEGORIES from "./adiTheoryPracticeData";
+import { ADI_FLASHCARD_CATEGORIES, ADI_FLASHCARD_CAT, ADI_FLASHCARDS } from "./adiFlashcardsData";
 import {
   Home as HomeIcon, BookOpen, CalendarCheck, Menu as MenuIcon, X as CloseIcon,
   ChevronRight, ChevronLeft, Shuffle, Check, Undo2, ListFilter, ArrowRight,
@@ -25,8 +27,8 @@ const SITE = {
 const PRIMARY_NAV = [
   { id: "home", label: "Home" },
   { id: "rules", label: "Rules of the Road" },
-  { id: "theory", label: "Theory Test Prep" },
-  { id: "adi", label: "ADI Test Prep" },
+  { id: "theory", label: "Theory & Driving Test" },
+  { id: "adi", label: "Approved Driving Instructor" },
   { id: "flashcards-hub", label: "Flashcards" },
 ];
 
@@ -37,7 +39,7 @@ const TAB_BAR = [
   { id: "more", label: "More", icon: MenuIcon },
 ];
 
-const LEARNING_GROUP = ["rules", "theory", "adi", "flashcards-hub", "flashcards-deck", "learning"];
+const LEARNING_GROUP = ["rules", "theory", "adi", "adi-quiz", "adi-theory-quiz", "adi-flashcards", "flashcards-hub", "flashcards-deck", "learning"];
 
 function isTabActive(tabId, view) {
   if (tabId === "learning") return LEARNING_GROUP.includes(view);
@@ -92,8 +94,8 @@ function ComingSoonBanner({ text }) {
 function HomePage({ go }) {
   const quickLinks = [
     { id: "rules", label: "Rules of the Road", desc: "Ireland's official rules, explained clearly.", icon: ShieldCheck, tone: "bg-slate-900" },
-    { id: "theory", label: "Theory Test Prep", desc: "Get ready for the driver theory test.", icon: BookOpen, tone: "bg-slate-900" },
-    { id: "adi", label: "ADI Test Prep", desc: "Study material for approved instructors.", icon: GraduationCap, tone: "bg-slate-900" },
+    { id: "theory", label: "Theory & Driving Test", desc: "Prep for your learner theory test and full driving test.", icon: BookOpen, tone: "bg-slate-900" },
+    { id: "adi", label: "Approved Driving Instructor", desc: "ADI Stage 1 mock test, theory practice and flashcards.", icon: GraduationCap, tone: "bg-slate-900" },
     { id: "booking", label: "Book a Lesson", desc: "Reserve your driving lesson online.", icon: CalendarCheck, tone: "bg-emerald-600" },
   ];
 
@@ -242,8 +244,8 @@ function HomePage({ go }) {
 function LearningMaterialsHub({ go }) {
   const items = [
     { id: "rules", label: "Rules of the Road", desc: "The official rules, rewritten in plain English.", icon: ShieldCheck, status: "Overview available" },
-    { id: "theory", label: "Theory Test Preparation", desc: "Structured prep for the driver theory test.", icon: BookOpen, status: "Coming soon" },
-    { id: "adi", label: "ADI Test Preparation", desc: "Study material for the ADI qualifying exams.", icon: GraduationCap, status: "Coming soon" },
+    { id: "theory", label: "Theory & Driving Test", desc: "Learner theory test and full driving test prep.", icon: BookOpen, status: "Coming soon" },
+    { id: "adi", label: "Approved Driving Instructor", desc: "ADI Stage 1 mock test, theory practice and flashcards.", icon: GraduationCap, status: "126+ practice questions ready" },
     { id: "flashcards-hub", label: "Flashcards", desc: "RSA-style flashcards for quick, active recall.", icon: Layers, status: "153 cards ready" },
   ];
   return (
@@ -350,12 +352,13 @@ function TheoryTestPage({ go }) {
     <ResourcePage
       go={go}
       icon={BookOpen}
-      title="Theory Test Preparation"
-      tagline="Structured prep for the official Driver Theory Test — question banks, mock tests and hazard perception practice."
+      title="Theory & Driving Test"
+      tagline="Prep for both the learner Driver Theory Test and the full driving test — question banks, mock tests and hazard perception practice."
       points={[
-        "Practice questions grouped by topic",
+        "Learner theory test: practice questions grouped by topic",
         "Full-length mock theory tests with instant scoring",
         "Hazard perception video practice",
+        "Full driving test: what's assessed and how to prepare",
         "Progress tracking so you know when you're ready",
       ]}
       comingSoon="Theory test question banks and mock exams are coming soon. Get a head start with the Rules of the Road flashcards, which cover much of the same material."
@@ -370,27 +373,47 @@ function TheoryTestPage({ go }) {
    Best scores persist in the visitor's browser (localStorage) so this is
    safe and works the same once deployed on the live site.
    ========================================================================= */
-const ADI_BEST_KEY = "adi-quiz-best-scores-v1";
-
-function loadAdiBest() {
+/* =========================================================================
+   ADI STAGE 1 QUIZ ENGINE (generic — powers both the Mock Test and the
+   Theory Practice quiz below). Ported from a standalone practice tool into
+   the site's own theme.
+   Best scores and bookmarks persist in the visitor's browser (localStorage),
+   scoped per quiz via a storageKey prefix, so the two quizzes don't clash.
+   ========================================================================= */
+function loadJson(key, fallback) {
   try {
-    return JSON.parse(localStorage.getItem(ADI_BEST_KEY)) || {};
+    const v = JSON.parse(localStorage.getItem(key));
+    return v || fallback;
   } catch (e) {
-    return {};
+    return fallback;
   }
 }
-function saveAdiBest(catId, score, total) {
+function saveJson(key, value) {
   try {
-    const data = loadAdiBest();
-    const pct = Math.round((score / total) * 100);
-    if (!data[catId] || pct > data[catId]) {
-      data[catId] = pct;
-      localStorage.setItem(ADI_BEST_KEY, JSON.stringify(data));
-    }
-    return data;
+    localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
-    return loadAdiBest();
+    /* ignore — quiz still works without persistence */
   }
+}
+
+function loadAdiBest(storageKey) {
+  return loadJson(`${storageKey}-best-scores-v1`, {});
+}
+function saveAdiBest(storageKey, catId, score, total) {
+  const data = loadAdiBest(storageKey);
+  const pct = Math.round((score / total) * 100);
+  if (!data[catId] || pct > data[catId]) {
+    data[catId] = pct;
+    saveJson(`${storageKey}-best-scores-v1`, data);
+  }
+  return data;
+}
+
+function loadBookmarks(storageKey) {
+  return loadJson(`${storageKey}-bookmarks-v1`, []);
+}
+function saveBookmarks(storageKey, list) {
+  saveJson(`${storageKey}-bookmarks-v1`, list);
 }
 
 function shuffledIndices(n) {
@@ -411,10 +434,10 @@ const ADI_SIGN_STYLE = {
   national: { bar: "bg-emerald-600", pill: "bg-emerald-50 text-emerald-700" },
 };
 
-function AdiCategoryGrid({ best, onStart }) {
+function AdiCategoryGrid({ categories, best, onStart }) {
   return (
     <div className="grid sm:grid-cols-2 gap-4">
-      {ADI_CATEGORIES.map((cat, i) => {
+      {categories.map((cat, i) => {
         const style = ADI_SIGN_STYLE[cat.signType] || ADI_SIGN_STYLE.info;
         const bestPct = best[cat.id];
         return (
@@ -431,7 +454,7 @@ function AdiCategoryGrid({ best, onStart }) {
               <h3 className="mt-2 font-black text-slate-900 text-lg leading-snug">{cat.title}</h3>
               <p className="mt-1.5 text-sm text-slate-500">{cat.blurb}</p>
               <span className={`mt-3 inline-block text-xs font-bold px-2.5 py-1 rounded-full ${style.pill}`}>
-                Real exam pass mark: {cat.passMarkPct}% ({cat.realExamQuestions} Qs)
+                Pass mark: {cat.passMarkPct}%{cat.realExamQuestions ? ` (${cat.realExamQuestions} Qs on the real test)` : ""}
               </span>
               <div className="mt-4 flex items-center justify-between text-xs font-mono font-bold text-slate-500">
                 <span>{cat.questions.length} practice questions</span>
@@ -447,7 +470,7 @@ function AdiCategoryGrid({ best, onStart }) {
   );
 }
 
-function AdiQuizScreen({ cat, onFinish, onExitToCategories }) {
+function AdiQuizScreen({ cat, bookmarks, onToggleBookmark, onFinish, onExitToCategories }) {
   const [order] = useState(() => shuffledIndices(cat.questions.length));
   const [qIndex, setQIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -457,7 +480,10 @@ function AdiQuizScreen({ cat, onFinish, onExitToCategories }) {
   const attemptLog = useRef([]);
 
   const total = cat.questions.length;
-  const q = cat.questions[order[qIndex]];
+  const qOriginalIndex = order[qIndex];
+  const q = cat.questions[qOriginalIndex];
+  const qKey = `${cat.id}::${qOriginalIndex}`;
+  const isBookmarked = bookmarks.includes(qKey);
   const correctDisplayIndex = optionOrder.indexOf(q.correct);
   const letters = ["A", "B", "C", "D", "E", "F"];
 
@@ -524,7 +550,16 @@ function AdiQuizScreen({ cat, onFinish, onExitToCategories }) {
 
       {/* question card */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm">
-        <p className="text-xl sm:text-2xl font-black text-slate-900 leading-snug mb-6">{q.q}</p>
+        <div className="flex items-start justify-between gap-3 mb-6">
+          <p className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">{q.q}</p>
+          <button
+            onClick={() => onToggleBookmark(qKey)}
+            aria-label={isBookmarked ? "Remove bookmark" : "Bookmark this question"}
+            className={`shrink-0 p-2 rounded-lg border-2 transition ${isBookmarked ? "border-amber-400 bg-amber-50 text-amber-600" : "border-slate-200 text-slate-300 hover:border-slate-300 hover:text-slate-400"}`}
+          >
+            <Star size={18} fill={isBookmarked ? "currentColor" : "none"} />
+          </button>
+        </div>
 
         <div className="flex flex-col gap-3">
           {optionOrder.map((origIndex, displayIndex) => {
@@ -590,7 +625,7 @@ function AdiResultsScreen({ cat, result, onRetry, onAllSections }) {
         <p className={`text-6xl sm:text-7xl font-black ${passed ? "text-emerald-600" : "text-red-600"}`}>{pct}%</p>
         <p className="mt-3 text-slate-600 font-bold">{score} of {total} correct &middot; {cat.title}</p>
         <p className="mt-1 text-xs font-mono font-bold text-slate-400">
-          Real exam pass mark for this section: {cat.passMarkPct}% ({cat.realExamQuestions} questions on the actual test)
+          Pass mark for this section: {cat.passMarkPct}%{cat.realExamQuestions ? ` (${cat.realExamQuestions} questions on the actual test)` : ""}
         </p>
         <span className={`inline-block mt-5 px-4 py-2 rounded-full text-sm font-black
           ${passed ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
@@ -632,12 +667,114 @@ function AdiResultsScreen({ cat, result, onRetry, onAllSections }) {
   );
 }
 
-function AdiQuizApp({ onBack }) {
-  const [stage, setStage] = useState("categories"); // categories | quiz | results
+function AdiBookmarksScreen({ categories, bookmarks, onToggleBookmark, onBack }) {
+  // Look up each bookmarked question across every category.
+  const items = [];
+  bookmarks.forEach(key => {
+    const [catId, idxStr] = key.split("::");
+    const cat = categories.find(c => c.id === catId);
+    if (!cat) return;
+    const q = cat.questions[Number(idxStr)];
+    if (!q) return;
+    items.push({ key, cat, q });
+  });
+
+  return (
+    <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
+      <button
+        onClick={onBack}
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-700 mb-5"
+      >
+        <ChevronLeft size={14} /> All sections
+      </button>
+      <div className="flex items-center gap-2 mb-2">
+        <Star size={20} className="text-amber-500" fill="currentColor" />
+        <h2 className="text-2xl font-black text-slate-900">Bookmarked Questions</h2>
+      </div>
+      <p className="text-slate-500 text-sm mb-6">
+        Questions you've starred while practising — a quick way to revisit anything you found tricky.
+      </p>
+
+      {items.length === 0 ? (
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 text-center text-slate-500">
+          No bookmarks yet. Tap the star on any question during a practice session to save it here.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {items.map(({ key, cat, q }) => (
+            <div key={key} className="bg-white border border-slate-200 rounded-xl p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">{cat.title}</p>
+                  <p className="font-bold text-slate-900 text-sm">{q.q}</p>
+                </div>
+                <button
+                  onClick={() => onToggleBookmark(key)}
+                  aria-label="Remove bookmark"
+                  className="shrink-0 p-2 rounded-lg border-2 border-amber-400 bg-amber-50 text-amber-600"
+                >
+                  <Star size={16} fill="currentColor" />
+                </button>
+              </div>
+              <p className="text-sm text-emerald-700 font-semibold mt-2">Correct answer: {q.options[q.correct]}</p>
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">{q.explain}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdiOverallResultScreen({ overall, passThreshold, onKeepGoing, onStartOver }) {
+  const pct = overall.total > 0 ? Math.round((overall.correct / overall.total) * 100) : 0;
+  const passed = pct >= passThreshold;
+  return (
+    <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
+      <div className="bg-white border border-slate-200 rounded-2xl p-7 sm:p-10 text-center shadow-sm">
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Overall Practice Result</p>
+        <p className={`text-6xl sm:text-7xl font-black ${passed ? "text-emerald-600" : "text-red-600"}`}>{pct}%</p>
+        <p className="mt-3 text-slate-600 font-bold">{overall.correct} of {overall.total} correct across this session</p>
+        <p className="mt-1 text-xs font-mono font-bold text-slate-400">Pass threshold: {passThreshold}%</p>
+        <span className={`inline-block mt-5 px-5 py-2.5 rounded-full text-base font-black
+          ${passed ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+          {passed ? "PASS" : "FAIL"}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-3 mt-7 justify-center">
+        <button
+          onClick={onKeepGoing}
+          className="inline-flex items-center gap-2 border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-bold px-5 py-3 rounded-xl transition"
+        >
+          Keep practising
+        </button>
+        <button
+          onClick={onStartOver}
+          className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-3 rounded-xl transition"
+        >
+          Start a fresh session
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AdiQuizApp({ onBack, categories, storageKey, title, badge, description, note }) {
+  const [stage, setStage] = useState("categories"); // categories | quiz | results | bookmarks | overall
   const [currentCat, setCurrentCat] = useState(null);
   const [result, setResult] = useState(null);
-  const [best, setBest] = useState(() => loadAdiBest());
+  const [best, setBest] = useState(() => loadAdiBest(storageKey));
+  const [bookmarks, setBookmarks] = useState(() => loadBookmarks(storageKey));
+  const [overall, setOverall] = useState({ correct: 0, total: 0 });
   const [quizKey, setQuizKey] = useState(0); // bump to force a fresh AdiQuizScreen instance
+
+  const toggleBookmark = (key) => {
+    setBookmarks(prev => {
+      const next = prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key];
+      saveBookmarks(storageKey, next);
+      return next;
+    });
+  };
 
   const startQuiz = (cat) => {
     setCurrentCat(cat);
@@ -647,11 +784,15 @@ function AdiQuizApp({ onBack }) {
   };
 
   const finishQuiz = ({ score, total, log }) => {
-    const updated = saveAdiBest(currentCat.id, score, total);
+    const updated = saveAdiBest(storageKey, currentCat.id, score, total);
     setBest(updated);
     setResult({ score, total, log });
+    setOverall(o => ({ correct: o.correct + score, total: o.total + total }));
     setStage("results");
   };
+
+  const PASS_THRESHOLD = 75;
+  const overallPct = overall.total > 0 ? Math.round((overall.correct / overall.total) * 100) : null;
 
   return (
     <div>
@@ -661,27 +802,53 @@ function AdiQuizApp({ onBack }) {
             onClick={onBack}
             className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 mb-4"
           >
-            <ChevronLeft size={14} /> Back to Learning Materials
+            <ChevronLeft size={14} /> Back to Approved Driving Instructor
           </button>
           <span className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-400 text-slate-900">
-            RSA &middot; Approved Driving Instructor
+            {badge}
           </span>
-          <h1 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight">ADI Stage 1 Theory Practice</h1>
-          <p className="mt-2 text-slate-300 text-sm sm:text-base max-w-xl">
-            Practice questions across all 5 official sections of the ADI Stage 1 theory test, grounded
-            in RSA source material — the Driving Instructor's Handbook, official sample questions, and
-            the Driver Tester Marking Guidelines.
-          </p>
-          <p className="mt-3 text-xs text-slate-400 max-w-xl leading-relaxed border-t border-slate-800 pt-3">
-            On the real exam you must pass each of the 5 sections individually — failing one section
-            fails the whole test. Category-specific content shown here covers Car &amp; Work Vehicles (B/W).
-          </p>
+          <h1 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight">{title}</h1>
+          <p className="mt-2 text-slate-300 text-sm sm:text-base max-w-xl">{description}</p>
+          {note && (
+            <p className="mt-3 text-xs text-slate-400 max-w-xl leading-relaxed border-t border-slate-800 pt-3">{note}</p>
+          )}
+
+          {overall.total > 0 && (
+            <div className="mt-4 flex items-center gap-3 bg-slate-800/60 rounded-xl px-4 py-3">
+              <div className="flex-1">
+                <div className="flex justify-between text-xs font-mono font-bold text-slate-300 mb-1">
+                  <span>OVERALL THIS SESSION</span>
+                  <span>{overall.correct}/{overall.total} ({overallPct}%)</span>
+                </div>
+                <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ${overallPct >= PASS_THRESHOLD ? "bg-emerald-400" : "bg-amber-400"}`}
+                    style={{ width: `${Math.min(overallPct, 100)}%` }}
+                  />
+                </div>
+              </div>
+              <button
+                onClick={() => setStage("overall")}
+                className="shrink-0 text-xs font-bold uppercase tracking-wide bg-white text-slate-900 px-3 py-2 rounded-lg hover:bg-slate-100"
+              >
+                Finish &amp; See Result
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       {stage === "categories" && (
         <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
-          <AdiCategoryGrid best={best} onStart={startQuiz} />
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => setStage("bookmarks")}
+              className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber-700 bg-amber-50 px-3 py-2 rounded-full hover:bg-amber-100"
+            >
+              <Star size={14} fill="currentColor" /> Bookmarks ({bookmarks.length})
+            </button>
+          </div>
+          <AdiCategoryGrid categories={categories} best={best} onStart={startQuiz} />
         </div>
       )}
 
@@ -689,6 +856,8 @@ function AdiQuizApp({ onBack }) {
         <AdiQuizScreen
           key={quizKey}
           cat={currentCat}
+          bookmarks={bookmarks}
+          onToggleBookmark={toggleBookmark}
           onFinish={finishQuiz}
           onExitToCategories={() => setStage("categories")}
         />
@@ -703,31 +872,97 @@ function AdiQuizApp({ onBack }) {
         />
       )}
 
+      {stage === "bookmarks" && (
+        <AdiBookmarksScreen
+          categories={categories}
+          bookmarks={bookmarks}
+          onToggleBookmark={toggleBookmark}
+          onBack={() => setStage("categories")}
+        />
+      )}
+
+      {stage === "overall" && (
+        <AdiOverallResultScreen
+          overall={overall}
+          passThreshold={PASS_THRESHOLD}
+          onKeepGoing={() => setStage("categories")}
+          onStartOver={() => { setOverall({ correct: 0, total: 0 }); setStage("categories"); }}
+        />
+      )}
+
       <div className="max-w-2xl mx-auto px-5 sm:px-8 pb-10 text-center text-xs text-slate-400 leading-relaxed">
-        Content grounded in RSA's Driving Instructor's Handbook, official ADI Stage 1 sample questions,
-        and the RSA Driver Tester Marking Guidelines. This is an independent practice tool, not
-        affiliated with the RSA — always confirm current requirements at rsa.ie.
+        Content grounded in RSA source material — the Driving Instructor's Handbook, official ADI Stage 1
+        sample questions, and the Driver Tester Marking Guidelines. This is an independent practice tool,
+        not affiliated with the RSA — always confirm current requirements at rsa.ie.
       </div>
     </div>
   );
 }
 
+
+
 function ADITestPage({ go }) {
+  const items = [
+    {
+      view: "adi-quiz",
+      label: "ADI Stage 1 Mock Test",
+      desc: "151 questions across the 5 official exam sections, weighted to match the real test's structure and pass marks.",
+      icon: ShieldCheck,
+      tone: "bg-slate-900",
+    },
+    {
+      view: "adi-theory-quiz",
+      label: "ADI Stage 1 Theory Practice",
+      desc: "126 additional practice questions sourced from mock papers and the RSA's own official sample questions, with bookmarking and an overall pass/fail score.",
+      icon: BookOpen,
+      tone: "bg-emerald-600",
+    },
+    {
+      view: "adi-flashcards",
+      label: "ADI Flashcards",
+      desc: "62 quick-recall flashcards covering test procedure, pedagogy, mechanics, towing and pedestrian crossings.",
+      icon: Layers,
+      tone: "bg-amber-500",
+    },
+  ];
+
   return (
-    <ResourcePage
-      go={go}
-      icon={GraduationCap}
-      title="ADI Test Preparation"
-      tagline="Practice for the ADI Stage 1 theory test — 151 practice questions across all 5 official exam sections, grounded in RSA source material."
-      points={[
-        "Driver Testing Procedures & Documentation (20 Qs on the real test, 70% pass mark)",
-        "Road Safety Precepts & Practices (25 Qs, 72% pass mark)",
-        "Pedagogy — Teaching Ability (15 Qs, 60% pass mark)",
-        "Basic Mechanics & Vehicle Maintenance (20 Qs, 70% pass mark)",
-        "Category-Specific: Car & Work Vehicles B/W (20 Qs, 70% pass mark)",
-      ]}
-      cta={{ view: "adi-quiz", label: "Start ADI Stage 1 Practice" }}
-    />
+    <div className="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
+      <button
+        onClick={() => go("learning")}
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-700 mb-6"
+      >
+        <ChevronLeft size={14} /> Learning Materials
+      </button>
+
+      <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center mb-5">
+        <GraduationCap size={24} className="text-white" />
+      </div>
+      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Approved Driving Instructor</h1>
+      <p className="mt-2 text-slate-600 text-base sm:text-lg max-w-xl">
+        Everything to prepare for the ADI Stage 1 theory test — grounded in RSA source material,
+        official sample questions, and real mock papers.
+      </p>
+
+      <div className="mt-8 space-y-3">
+        {items.map(it => (
+          <button
+            key={it.view}
+            onClick={() => go(it.view)}
+            className="w-full text-left flex items-center gap-4 bg-white border border-slate-200 rounded-2xl p-5 hover:border-emerald-400 hover:shadow-lg transition"
+          >
+            <div className={`w-11 h-11 rounded-xl ${it.tone} flex items-center justify-center shrink-0`}>
+              <it.icon size={20} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-slate-900">{it.label}</p>
+              <p className="text-sm text-slate-500 mt-0.5">{it.desc}</p>
+            </div>
+            <ChevronRight size={18} className="text-slate-300 shrink-0" />
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -1276,23 +1511,22 @@ function shuffleArr(arr) {
   return a;
 }
 
-function FlashcardDeck({ onBack }) {
+function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSubtitle, backLabel }) {
   const [activeCat, setActiveCat] = useState("all");
-  const [order, setOrder] = useState(() => CARDS.map(c => c.id));
+  const [order, setOrder] = useState(() => cards.map(c => c.id));
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState(() => new Set());
   const [review, setReview] = useState(() => new Set());
 
   const deck = useMemo(() => {
-    const idSet = new Set(order);
     const filtered = activeCat === "all"
-      ? CARDS
-      : CARDS.filter(c => c.c === activeCat);
+      ? cards
+      : cards.filter(c => c.c === activeCat);
     // preserve current shuffle/order among the filtered set
     const orderIndex = new Map(order.map((id, i) => [id, i]));
     return [...filtered].sort((a, b) => (orderIndex.get(a.id) ?? 0) - (orderIndex.get(b.id) ?? 0));
-  }, [activeCat, order]);
+  }, [activeCat, order, cards]);
 
   useEffect(() => { setPos(0); setFlipped(false); }, [activeCat]);
 
@@ -1395,13 +1629,13 @@ function FlashcardDeck({ onBack }) {
   };
 
   const doShuffle = () => {
-    setOrder(shuffleArr(CARDS.map(c => c.id)));
+    setOrder(shuffleArr(cards.map(c => c.id)));
     setPos(0);
     setFlipped(false);
   };
 
   const resetOrder = () => {
-    setOrder(CARDS.map(c => c.id));
+    setOrder(cards.map(c => c.id));
     setPos(0);
     setFlipped(false);
   };
@@ -1419,7 +1653,7 @@ function FlashcardDeck({ onBack }) {
     triggerChange(1);
   };
 
-  const cat = card ? CAT[card.c] : null;
+  const cat = card ? catLookup[card.c] : null;
   const knownCount = deck.filter(c => known.has(c.id)).length;
 
 
@@ -1440,18 +1674,18 @@ function FlashcardDeck({ onBack }) {
             onClick={onBack}
             className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 mb-3"
           >
-            <ChevronLeft size={14} /> Back to Flashcards
+            <ChevronLeft size={14} /> {backLabel || "Back to Flashcards"}
           </button>
           <div className="flex items-baseline justify-between gap-4 flex-wrap">
             <h1 className="font-black uppercase tracking-tight text-2xl sm:text-3xl text-emerald-400">
-              Rules of the Road
+              {deckTitle}
             </h1>
             <span className="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-widest">
-              RSA Flashcards
+              {deckSubtitle}
             </span>
           </div>
           <p className="text-slate-400 text-sm mt-1">
-            {CARDS.length} cards &middot; {CATEGORIES.length} categories &middot; {knownCount}/{total} known in this set
+            {cards.length} cards &middot; {categories.length} categories &middot; {knownCount}/{total} known in this set
           </p>
         </div>
       </header>
@@ -1464,10 +1698,10 @@ function FlashcardDeck({ onBack }) {
             className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide border transition
               ${activeCat === "all" ? "bg-emerald-400 text-slate-900 border-emerald-400" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
           >
-            <ListFilter size={13} /> All ({CARDS.length})
+            <ListFilter size={13} /> All ({cards.length})
           </button>
-          {CATEGORIES.map(c => {
-            const count = CARDS.filter(k => k.c === c.id).length;
+          {categories.map(c => {
+            const count = cards.filter(k => k.c === c.id).length;
             const active = activeCat === c.id;
             return (
               <button
@@ -1647,7 +1881,9 @@ function TopNav({ view, go }) {
               key={n.id}
               onClick={() => go(n.id)}
               className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition
-                ${view === n.id || (n.id === "flashcards-hub" && view === "flashcards-deck")
+                ${view === n.id
+                  || (n.id === "flashcards-hub" && view === "flashcards-deck")
+                  || (n.id === "adi" && ["adi-quiz", "adi-theory-quiz", "adi-flashcards"].includes(view))
                   ? "bg-slate-800 text-white"
                   : "text-slate-300 hover:text-white hover:bg-slate-800/60"}`}
             >
@@ -1763,8 +1999,8 @@ function SiteFooter() {
         <div className="text-sm space-y-2">
           <p className="font-bold text-white mb-2">Learning Materials</p>
           <p>Rules of the Road</p>
-          <p>Theory Test Preparation</p>
-          <p>ADI Test Preparation</p>
+          <p>Theory &amp; Driving Test</p>
+          <p>Approved Driving Instructor</p>
           <p>RSA Flashcards</p>
         </div>
       </div>
@@ -1821,12 +2057,60 @@ export default function App() {
   else if (view === "rules") content = <RulesOfRoadPage go={go} />;
   else if (view === "theory") content = <TheoryTestPage go={go} />;
   else if (view === "adi") content = <ADITestPage go={go} />;
-  else if (view === "adi-quiz") content = <AdiQuizApp onBack={() => go("adi")} />;
+  else if (view === "adi-quiz") {
+    content = (
+      <AdiQuizApp
+        onBack={() => go("adi")}
+        categories={ADI_CATEGORIES}
+        storageKey="adi-mock-test"
+        badge="RSA &middot; Approved Driving Instructor"
+        title="ADI Stage 1 Mock Test"
+        description="Practice questions across all 5 official sections of the ADI Stage 1 theory test, grounded in RSA source material — the Driving Instructor's Handbook, official sample questions, and the Driver Tester Marking Guidelines."
+        note="On the real exam you must pass each of the 5 sections individually — failing one section fails the whole test. Category-specific content shown here covers Car & Work Vehicles (B/W)."
+      />
+    );
+  }
+  else if (view === "adi-theory-quiz") {
+    content = (
+      <AdiQuizApp
+        onBack={() => go("adi")}
+        categories={ADI_THEORY_PRACTICE_CATEGORIES}
+        storageKey="adi-theory-practice"
+        badge="Theory Practice"
+        title="ADI Stage 1 Theory Practice"
+        description="126 additional practice questions sourced from real mock test papers and the RSA's own official ADI Stage 1 sample questions — bookmark anything tricky, and see your overall score across every section you attempt."
+        note="This is a separate practice set from the Mock Test above, drawn from different source material — use both for the widest coverage."
+      />
+    );
+  }
+  else if (view === "adi-flashcards") {
+    content = (
+      <div className="max-w-3xl mx-auto px-3 sm:px-8 py-6 sm:py-10">
+        <FlashcardDeck
+          onBack={() => go("adi")}
+          cards={ADI_FLASHCARDS}
+          categories={ADI_FLASHCARD_CATEGORIES}
+          catLookup={ADI_FLASHCARD_CAT}
+          deckTitle="ADI Flashcards"
+          deckSubtitle="Approved Driving Instructor"
+          backLabel="Back to Approved Driving Instructor"
+        />
+      </div>
+    );
+  }
   else if (view === "flashcards-hub") content = <FlashcardsHub go={go} />;
   else if (view === "flashcards-deck") {
     content = (
       <div className="max-w-3xl mx-auto px-3 sm:px-8 py-6 sm:py-10">
-        <FlashcardDeck onBack={() => go("flashcards-hub")} />
+        <FlashcardDeck
+          onBack={() => go("flashcards-hub")}
+          cards={CARDS}
+          categories={CATEGORIES}
+          catLookup={CAT}
+          deckTitle="Rules of the Road"
+          deckSubtitle="RSA Flashcards"
+          backLabel="Back to Flashcards"
+        />
       </div>
     );
   } else if (view === "booking") content = <BookingPage />;
