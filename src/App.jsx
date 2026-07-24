@@ -1052,8 +1052,22 @@ function BookingPage() {
   const [confirmed, setConfirmed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [bookingPaused, setBookingPaused] = useState(null); // null = still checking
+  const [pausedMessage, setPausedMessage] = useState("");
 
   const selectedLesson = LESSON_TYPES.find(t => t.id === lessonType);
+
+  useEffect(() => {
+    supabase
+      .from("app_settings")
+      .select("booking_paused, paused_message")
+      .eq("id", 1)
+      .single()
+      .then(({ data }) => {
+        setBookingPaused(!!data?.booking_paused);
+        setPausedMessage(data?.paused_message || "Sorry, we're fully booked right now! Please check back soon.");
+      });
+  }, []);
 
   const loadSlots = useCallback(async () => {
     setLoadingSlots(true);
@@ -1083,6 +1097,22 @@ function BookingPage() {
     });
     return Array.from(map.entries()).map(([date, list]) => ({ date, slots: list }));
   }, [slots]);
+
+  if (bookingPaused === null) {
+    return <div className="max-w-lg mx-auto px-5 sm:px-8 py-20" />;
+  }
+
+  if (bookingPaused) {
+    return (
+      <div className="max-w-lg mx-auto px-5 sm:px-8 py-14 sm:py-20 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto">
+          <Clock size={32} className="text-amber-600" />
+        </div>
+        <h1 className="mt-5 text-2xl sm:text-3xl font-black text-slate-900">Bookings paused</h1>
+        <p className="mt-3 text-slate-600 leading-relaxed">{pausedMessage}</p>
+      </div>
+    );
+  }
 
   const slotsForSelectedDate = dateGroups.find(g => g.date === selectedDate)?.slots || [];
 
@@ -1478,19 +1508,40 @@ function AdminDashboard({ onLogout }) {
   const [bulkEnd, setBulkEnd] = useState("17:00");
   const [bulkLength, setBulkLength] = useState(40);
   const [message, setMessage] = useState(null);
+  const [bookingPaused, setBookingPaused] = useState(false);
+  const [pausedMessage, setPausedMessage] = useState(
+    "Sorry, we're fully booked right now! We'll be back soon with new availability — please check back again soon, or watch out for any last-minute cancellations."
+  );
+  const [savingPause, setSavingPause] = useState(false);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [{ data: slotData }, { data: bookingData }] = await Promise.all([
+    const [{ data: slotData }, { data: bookingData }, { data: settingsData }] = await Promise.all([
       supabase.from("slots").select("*").order("slot_date").order("slot_time"),
       supabase.from("bookings").select("*, slots(slot_date, slot_time)").order("created_at", { ascending: false }),
+      supabase.from("app_settings").select("booking_paused, paused_message").eq("id", 1).single(),
     ]);
     setSlots(slotData || []);
     setBookings(bookingData || []);
+    if (settingsData) {
+      setBookingPaused(!!settingsData.booking_paused);
+      setPausedMessage(settingsData.paused_message || pausedMessage);
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => { loadAll(); }, [loadAll]);
+
+  const togglePause = async () => {
+    setSavingPause(true);
+    const nextValue = !bookingPaused;
+    const { error } = await supabase
+      .from("app_settings")
+      .update({ booking_paused: nextValue, paused_message: pausedMessage })
+      .eq("id", 1);
+    if (!error) setBookingPaused(nextValue);
+    setSavingPause(false);
+  };
 
   const addBulkSlots = async (e) => {
     e.preventDefault();
@@ -1537,6 +1588,45 @@ function AdminDashboard({ onLogout }) {
       </div>
 
       <div className="max-w-4xl mx-auto px-5 sm:px-8 py-8 space-y-10">
+        {/* Pause / resume bookings */}
+        <section>
+          <div className={`rounded-2xl p-5 border-2 ${bookingPaused ? "bg-amber-50 border-amber-300" : "bg-emerald-50 border-emerald-300"}`}>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <p className={`text-xs font-black uppercase tracking-widest ${bookingPaused ? "text-amber-700" : "text-emerald-700"}`}>
+                  {bookingPaused ? "Bookings are PAUSED" : "Bookings are OPEN"}
+                </p>
+                <p className="text-sm text-slate-600 mt-1">
+                  {bookingPaused
+                    ? "Customers see the message below instead of a booking form."
+                    : "Customers can see and book any open slots normally."}
+                </p>
+              </div>
+              <button
+                onClick={togglePause}
+                disabled={savingPause}
+                className={`font-bold px-5 py-2.5 rounded-xl transition shrink-0 ${
+                  bookingPaused
+                    ? "bg-emerald-600 hover:bg-emerald-500 text-white"
+                    : "bg-amber-500 hover:bg-amber-400 text-slate-900"
+                }`}
+              >
+                {savingPause ? "Saving..." : bookingPaused ? "Resume bookings" : "Pause bookings"}
+              </button>
+            </div>
+            <div className="mt-4">
+              <label className="text-xs font-bold text-slate-500 block mb-1">Message shown to customers while paused</label>
+              <textarea
+                value={pausedMessage}
+                onChange={e => setPausedMessage(e.target.value)}
+                onBlur={() => supabase.from("app_settings").update({ paused_message: pausedMessage }).eq("id", 1)}
+                rows={2}
+                className="w-full border-2 border-slate-200 focus:border-emerald-500 outline-none rounded-xl px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+        </section>
+
         {/* Add availability */}
         <section>
           <h2 className="text-lg font-black text-slate-900 mb-3">Open up new lesson times</h2>
