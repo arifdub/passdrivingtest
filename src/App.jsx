@@ -1133,6 +1133,22 @@ function BookingPage() {
       return;
     }
 
+    // Fire off confirmation emails — if this fails, the booking itself has
+    // already succeeded, so we still show the confirmation screen either way.
+    fetch("/api/send-booking-emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: contact.name.trim(),
+        email: contact.email.trim(),
+        phone: contact.phone.trim(),
+        lessonLabel: selectedLesson.label,
+        price: selectedLesson.price,
+        dateLabel: formatDateStr(selectedSlot.slot_date),
+        timeLabel: formatTimeStr(selectedSlot.slot_time),
+      }),
+    }).catch(() => { /* booking still succeeded even if the email failed */ });
+
     setConfirmed(true);
   };
 
@@ -1586,7 +1602,11 @@ function AdminDashboard({ onLogout }) {
                       <p className="text-sm text-slate-500">
                         {b.slots ? `${formatDateStr(b.slots.slot_date)} at ${formatTimeStr(b.slots.slot_time)}` : "Time slot removed"}
                       </p>
-                      <p className="text-xs text-slate-400 mt-1">{b.email} &middot; {b.phone}</p>
+                      <p className="text-xs text-slate-400 mt-1 flex flex-wrap gap-x-1">
+                        <a href={`mailto:${b.email}`} className="text-emerald-700 hover:underline">{b.email}</a>
+                        <span>&middot;</span>
+                        <a href={`tel:${b.phone}`} className="text-emerald-700 hover:underline">{b.phone}</a>
+                      </p>
                     </div>
                     <div className="flex flex-col gap-2 shrink-0">
                       {icsUrl && (
