@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { supabase } from "./supabaseClient";
 import SITE_CONFIG from "./siteConfig";
 import ADI_CATEGORIES from "./adiQuizData";
 import ADI_THEORY_PRACTICE_CATEGORIES from "./adiTheoryPracticeData";
@@ -1024,43 +1025,115 @@ function FlashcardsHub({ go }) {
 const LESSON_ICONS = { "1hr": Clock, "2hr": Car, pretest: ShieldCheck };
 const LESSON_TYPES = SITE_CONFIG.lessons.map(l => ({ ...l, icon: LESSON_ICONS[l.id] || Car }));
 
-function nextWeekdays(count) {
-  const out = [];
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  while (out.length < count) {
-    if (d.getDay() !== 0) { // skip Sundays
-      out.push(new Date(d));
-    }
-    d.setDate(d.getDate() + 1);
-  }
-  return out;
-}
-
-const TIME_SLOTS = ["09:00", "09:40", "10:20", "11:00", "11:40", "13:00", "13:40", "14:20", "15:00", "15:40"];
-
-function formatDate(d) {
+function formatDateStr(dateStr) {
+  // dateStr is "YYYY-MM-DD" from the database
+  const d = new Date(dateStr + "T00:00:00");
   return d.toLocaleDateString("en-IE", { weekday: "short", day: "numeric", month: "short" });
 }
+function formatTimeStr(t) {
+  // Postgres time comes back like "09:00:00" — trim to "09:00"
+  return t.slice(0, 5);
+}
 
+/* =========================================================================
+   BOOK A LESSON — reads real availability from Supabase, and atomically
+   locks a slot the moment someone books it so two people can never take
+   the same time.
+   ========================================================================= */
 function BookingPage() {
   const [step, setStep] = useState(1);
   const [lessonType, setLessonType] = useState(null);
-  const [date, setDate] = useState(null);
-  const [time, setTime] = useState(null);
+  const [slots, setSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [confirmed, setConfirmed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
-  const dates = useMemo(() => nextWeekdays(9), []);
   const selectedLesson = LESSON_TYPES.find(t => t.id === lessonType);
 
+  const loadSlots = useCallback(async () => {
+    setLoadingSlots(true);
+    setLoadError(null);
+    const { data, error } = await supabase
+      .from("slots")
+      .select("id, slot_date, slot_time, is_booked")
+      .eq("is_booked", false)
+      .order("slot_date", { ascending: true })
+      .order("slot_time", { ascending: true });
+    if (error) {
+      setLoadError("Couldn't load available times right now. Please try again shortly.");
+    } else {
+      setSlots(data || []);
+    }
+    setLoadingSlots(false);
+  }, []);
+
+  useEffect(() => { loadSlots(); }, [loadSlots]);
+
+  // Group open slots by date
+  const dateGroups = useMemo(() => {
+    const map = new Map();
+    slots.forEach(s => {
+      if (!map.has(s.slot_date)) map.set(s.slot_date, []);
+      map.get(s.slot_date).push(s);
+    });
+    return Array.from(map.entries()).map(([date, list]) => ({ date, slots: list }));
+  }, [slots]);
+
+  const slotsForSelectedDate = dateGroups.find(g => g.date === selectedDate)?.slots || [];
+
   const canContinueStep1 = !!lessonType;
-  const canContinueStep2 = !!date && !!time;
+  const canContinueStep2 = !!selectedSlot;
   const canSubmit = contact.name.trim() && contact.email.trim() && contact.phone.trim();
 
   const startOver = () => {
-    setStep(1); setTestType(null); setDate(null); setTime(null);
-    setContact({ name: "", email: "", phone: "" }); setConfirmed(false);
+    setStep(1); setLessonType(null); setSelectedDate(null); setSelectedSlot(null);
+    setContact({ name: "", email: "", phone: "" }); setConfirmed(false); setSubmitError(null);
+    loadSlots();
+  };
+
+  const submitBooking = async () => {
+    if (!selectedSlot) return;
+    setSubmitting(true);
+    setSubmitError(null);
+
+    // Atomically claim the slot: this UPDATE only succeeds if it's still open.
+    // If someone else grabbed it a second earlier, affected rows = 0.
+    const { data: updated, error: updateError } = await supabase
+      .from("slots")
+      .update({ is_booked: true })
+      .eq("id", selectedSlot.id)
+      .eq("is_booked", false)
+      .select();
+
+    if (updateError || !updated || updated.length === 0) {
+      setSubmitError("Sorry — that time was just taken by someone else. Please pick another.");
+      setSubmitting(false);
+      setSelectedSlot(null);
+      loadSlots();
+      return;
+    }
+
+    const { error: insertError } = await supabase.from("bookings").insert({
+      slot_id: selectedSlot.id,
+      lesson_type: lessonType,
+      full_name: contact.name.trim(),
+      email: contact.email.trim(),
+      phone: contact.phone.trim(),
+    });
+
+    setSubmitting(false);
+
+    if (insertError) {
+      setSubmitError("Your time slot was reserved, but saving your details failed. Please contact us directly to confirm.");
+      return;
+    }
+
+    setConfirmed(true);
   };
 
   if (confirmed) {
@@ -1069,16 +1142,16 @@ function BookingPage() {
         <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto">
           <CheckCircle2 size={32} className="text-emerald-600" />
         </div>
-        <h1 className="mt-5 text-2xl sm:text-3xl font-black text-slate-900">Appointment requested</h1>
+        <h1 className="mt-5 text-2xl sm:text-3xl font-black text-slate-900">Lesson booked</h1>
         <p className="mt-2 text-slate-600">
           We've booked your {selectedLesson.label.toLowerCase()} for{" "}
-          <span className="font-semibold text-slate-900">{formatDate(date)} at {time}</span>.
+          <span className="font-semibold text-slate-900">{formatDateStr(selectedSlot.slot_date)} at {formatTimeStr(selectedSlot.slot_time)}</span>.
           A confirmation will be sent to <span className="font-semibold text-slate-900">{contact.email}</span>.
         </p>
         <div className="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-5 text-left text-sm space-y-2">
           <div className="flex justify-between"><span className="text-slate-500">Lesson</span><span className="font-semibold text-slate-900">{selectedLesson.label}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">Date</span><span className="font-semibold text-slate-900">{formatDate(date)}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">Time</span><span className="font-semibold text-slate-900">{time}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500">Date</span><span className="font-semibold text-slate-900">{formatDateStr(selectedSlot.slot_date)}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500">Time</span><span className="font-semibold text-slate-900">{formatTimeStr(selectedSlot.slot_time)}</span></div>
           <div className="flex justify-between"><span className="text-slate-500">Fee</span><span className="font-semibold text-slate-900">{selectedLesson.price}</span></div>
         </div>
         <button
@@ -1087,9 +1160,6 @@ function BookingPage() {
         >
           Book another lesson
         </button>
-        <p className="text-xs text-slate-400 mt-6">
-          This is a prototype booking flow for demonstration — no payment has been taken and no real lesson has been booked.
-        </p>
       </div>
     );
   }
@@ -1098,7 +1168,7 @@ function BookingPage() {
     <div className="max-w-2xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
       <SectionEyebrow tone="emerald">Book a Lesson</SectionEyebrow>
       <h1 className="mt-3 text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Book your lesson</h1>
-      <p className="mt-2 text-slate-600">Choose a lesson, pick a slot, and confirm your details.</p>
+      <p className="mt-2 text-slate-600">Choose a lesson, pick a real available slot, and confirm your details.</p>
 
       {/* Stepper */}
       <div className="flex items-center gap-2 mt-7 mb-8">
@@ -1121,7 +1191,7 @@ function BookingPage() {
             {LESSON_TYPES.map(t => (
               <button
                 key={t.id}
-                onClick={() => setTestType(t.id)}
+                onClick={() => setLessonType(t.id)}
                 className={`w-full flex items-center gap-4 rounded-2xl p-4 border-2 text-left transition
                   ${lessonType === t.id ? "border-emerald-600 bg-emerald-50" : "border-slate-200 hover:border-slate-300"}`}
               >
@@ -1146,38 +1216,61 @@ function BookingPage() {
         </div>
       )}
 
-      {/* Step 2: date/time */}
+      {/* Step 2: date/time — real availability from Supabase */}
       {step === 2 && (
         <div>
-          <p className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-3">Choose a date</p>
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
-            {dates.map(d => (
-              <button
-                key={d.toISOString()}
-                onClick={() => setDate(d)}
-                className={`shrink-0 flex flex-col items-center justify-center w-20 h-20 rounded-2xl border-2 transition
-                  ${date && date.toDateString() === d.toDateString() ? "border-emerald-600 bg-emerald-50" : "border-slate-200 hover:border-slate-300"}`}
-              >
-                <span className="text-xs font-semibold text-slate-500">{d.toLocaleDateString("en-IE", { weekday: "short" })}</span>
-                <span className="text-lg font-black text-slate-900">{d.getDate()}</span>
-                <span className="text-xs text-slate-500">{d.toLocaleDateString("en-IE", { month: "short" })}</span>
-              </button>
-            ))}
-          </div>
+          {loadingSlots && (
+            <p className="text-slate-500 text-sm">Loading available times...</p>
+          )}
+          {loadError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-4">{loadError}</div>
+          )}
+          {!loadingSlots && !loadError && dateGroups.length === 0 && (
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center text-slate-500 text-sm">
+              No lesson times are open right now — please check back soon, or contact us directly.
+            </div>
+          )}
 
-          <p className="text-sm font-bold uppercase tracking-widest text-slate-500 mt-6 mb-3">Choose a time</p>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-            {TIME_SLOTS.map(t => (
-              <button
-                key={t}
-                onClick={() => setTime(t)}
-                className={`py-2.5 rounded-xl border-2 text-sm font-bold transition
-                  ${time === t ? "border-emerald-600 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-700 hover:border-slate-300"}`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
+          {!loadingSlots && dateGroups.length > 0 && (
+            <>
+              <p className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-3">Choose a date</p>
+              <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+                {dateGroups.map(g => {
+                  const d = new Date(g.date + "T00:00:00");
+                  return (
+                    <button
+                      key={g.date}
+                      onClick={() => { setSelectedDate(g.date); setSelectedSlot(null); }}
+                      className={`shrink-0 flex flex-col items-center justify-center w-20 h-20 rounded-2xl border-2 transition
+                        ${selectedDate === g.date ? "border-emerald-600 bg-emerald-50" : "border-slate-200 hover:border-slate-300"}`}
+                    >
+                      <span className="text-xs font-semibold text-slate-500">{d.toLocaleDateString("en-IE", { weekday: "short" })}</span>
+                      <span className="text-lg font-black text-slate-900">{d.getDate()}</span>
+                      <span className="text-xs text-slate-500">{d.toLocaleDateString("en-IE", { month: "short" })}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {selectedDate && (
+                <>
+                  <p className="text-sm font-bold uppercase tracking-widest text-slate-500 mt-6 mb-3">Choose a time</p>
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                    {slotsForSelectedDate.map(s => (
+                      <button
+                        key={s.id}
+                        onClick={() => setSelectedSlot(s)}
+                        className={`py-2.5 rounded-xl border-2 text-sm font-bold transition
+                          ${selectedSlot?.id === s.id ? "border-emerald-600 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-700 hover:border-slate-300"}`}
+                      >
+                        {formatTimeStr(s.slot_time)}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          )}
 
           <div className="flex gap-3 mt-7">
             <button
@@ -1203,7 +1296,7 @@ function BookingPage() {
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6 flex items-center gap-3 text-sm">
             <Clock size={16} className="text-slate-500 shrink-0" />
             <span className="text-slate-700">
-              {selectedLesson?.label} &middot; {date && formatDate(date)} at {time}
+              {selectedLesson?.label} &middot; {selectedSlot && formatDateStr(selectedSlot.slot_date)} at {selectedSlot && formatTimeStr(selectedSlot.slot_time)}
             </span>
           </div>
 
@@ -1240,6 +1333,10 @@ function BookingPage() {
             </div>
           </div>
 
+          {submitError && (
+            <div className="mt-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-4">{submitError}</div>
+          )}
+
           <div className="flex gap-3 mt-7">
             <button
               onClick={() => setStep(2)}
@@ -1248,11 +1345,11 @@ function BookingPage() {
               <ChevronLeft size={16} /> Back
             </button>
             <button
-              disabled={!canSubmit}
-              onClick={() => setConfirmed(true)}
+              disabled={!canSubmit || submitting}
+              onClick={submitBooking}
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold px-6 py-3 rounded-xl transition"
             >
-              <CalendarCheck size={16} /> Confirm booking
+              <CalendarCheck size={16} /> {submitting ? "Booking..." : "Confirm booking"}
             </button>
           </div>
         </div>
@@ -1260,6 +1357,232 @@ function BookingPage() {
     </div>
   );
 }
+
+/* =========================================================================
+   ADMIN — owner-only page (not in the public nav). Reach it by visiting
+   yoursite.com/#admin. Requires logging in with the owner account created
+   in the Supabase dashboard (Authentication -> Users -> Add user).
+   ========================================================================= */
+function AdminLogin({ onLoggedIn }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setBusy(false);
+    if (error) {
+      setError("Login failed — check your email and password and try again.");
+    } else {
+      onLoggedIn();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center px-5">
+      <form onSubmit={submit} className="w-full max-w-sm bg-white rounded-2xl p-7 shadow-xl">
+        <h1 className="text-xl font-black text-slate-900 mb-1">Owner Login</h1>
+        <p className="text-sm text-slate-500 mb-5">Manage your lesson availability and bookings.</p>
+        <div className="space-y-3">
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full border-2 border-slate-200 focus:border-emerald-500 outline-none rounded-xl px-4 py-3"
+          />
+          <input
+            type="password"
+            required
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Password"
+            className="w-full border-2 border-slate-200 focus:border-emerald-500 outline-none rounded-xl px-4 py-3"
+          />
+        </div>
+        {error && <p className="text-red-600 text-sm mt-3">{error}</p>}
+        <button
+          type="submit"
+          disabled={busy}
+          className="mt-5 w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 text-white font-bold py-3 rounded-xl transition"
+        >
+          {busy ? "Logging in..." : "Log In"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function AdminDashboard({ onLogout }) {
+  const [slots, setSlots] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newDate, setNewDate] = useState("");
+  const [bulkStart, setBulkStart] = useState("09:00");
+  const [bulkEnd, setBulkEnd] = useState("17:00");
+  const [bulkLength, setBulkLength] = useState(40);
+  const [message, setMessage] = useState(null);
+
+  const loadAll = useCallback(async () => {
+    setLoading(true);
+    const [{ data: slotData }, { data: bookingData }] = await Promise.all([
+      supabase.from("slots").select("*").order("slot_date").order("slot_time"),
+      supabase.from("bookings").select("*, slots(slot_date, slot_time)").order("created_at", { ascending: false }),
+    ]);
+    setSlots(slotData || []);
+    setBookings(bookingData || []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { loadAll(); }, [loadAll]);
+
+  const addBulkSlots = async (e) => {
+    e.preventDefault();
+    if (!newDate) return;
+    const rows = [];
+    let [h, m] = bulkStart.split(":").map(Number);
+    const [endH, endM] = bulkEnd.split(":").map(Number);
+    while (h < endH || (h === endH && m < endM)) {
+      rows.push({ slot_date: newDate, slot_time: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00` });
+      m += Number(bulkLength);
+      while (m >= 60) { m -= 60; h += 1; }
+    }
+    const { error } = await supabase.from("slots").upsert(rows, { onConflict: "slot_date,slot_time", ignoreDuplicates: true });
+    setMessage(error ? "Couldn't add those slots." : `Added ${rows.length} slot(s) for ${newDate}.`);
+    loadAll();
+  };
+
+  const removeSlot = async (id) => {
+    await supabase.from("slots").delete().eq("id", id);
+    loadAll();
+  };
+
+  const cancelBooking = async (booking) => {
+    await supabase.from("bookings").delete().eq("id", booking.id);
+    await supabase.from("slots").update({ is_booked: false }).eq("id", booking.slot_id);
+    loadAll();
+  };
+
+  const upcomingOpenSlots = slots.filter(s => !s.is_booked);
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <div className="bg-slate-900 text-white px-5 sm:px-8 py-6 flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-emerald-400 font-bold">Owner Dashboard</p>
+          <h1 className="text-xl font-black">Manage Bookings & Availability</h1>
+        </div>
+        <button
+          onClick={onLogout}
+          className="text-sm font-bold border border-slate-600 rounded-lg px-3 py-2 hover:bg-slate-800"
+        >
+          Log out
+        </button>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-5 sm:px-8 py-8 space-y-10">
+        {/* Add availability */}
+        <section>
+          <h2 className="text-lg font-black text-slate-900 mb-3">Open up new lesson times</h2>
+          <form onSubmit={addBulkSlots} className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-wrap items-end gap-4">
+            <div>
+              <label className="text-xs font-bold text-slate-500 block mb-1">Date</label>
+              <input type="date" required value={newDate} onChange={e => setNewDate(e.target.value)}
+                className="border-2 border-slate-200 rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-500 block mb-1">Start time</label>
+              <input type="time" value={bulkStart} onChange={e => setBulkStart(e.target.value)}
+                className="border-2 border-slate-200 rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-500 block mb-1">End time</label>
+              <input type="time" value={bulkEnd} onChange={e => setBulkEnd(e.target.value)}
+                className="border-2 border-slate-200 rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-500 block mb-1">Slot length (mins)</label>
+              <input type="number" min="10" step="5" value={bulkLength} onChange={e => setBulkLength(e.target.value)}
+                className="border-2 border-slate-200 rounded-lg px-3 py-2 w-24" />
+            </div>
+            <button type="submit" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-lg">
+              Add slots
+            </button>
+          </form>
+          {message && <p className="text-sm text-emerald-700 mt-2">{message}</p>}
+          <p className="text-xs text-slate-400 mt-2">
+            Example: 09:00 to 17:00 in 40-minute slots creates a full day of lesson times in one click.
+          </p>
+        </section>
+
+        {/* Open slots list */}
+        <section>
+          <h2 className="text-lg font-black text-slate-900 mb-3">Open slots ({upcomingOpenSlots.length})</h2>
+          {loading ? <p className="text-slate-400 text-sm">Loading...</p> : (
+            <div className="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100 max-h-80 overflow-y-auto">
+              {upcomingOpenSlots.length === 0 && <p className="p-4 text-sm text-slate-400">No open slots yet — add some above.</p>}
+              {upcomingOpenSlots.map(s => (
+                <div key={s.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                  <span className="font-semibold text-slate-700">{formatDateStr(s.slot_date)} &middot; {formatTimeStr(s.slot_time)}</span>
+                  <button onClick={() => removeSlot(s.id)} className="text-red-600 text-xs font-bold hover:underline">Remove</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Bookings list */}
+        <section>
+          <h2 className="text-lg font-black text-slate-900 mb-3">Bookings ({bookings.length})</h2>
+          {loading ? <p className="text-slate-400 text-sm">Loading...</p> : (
+            <div className="space-y-3">
+              {bookings.length === 0 && <p className="text-sm text-slate-400">No bookings yet.</p>}
+              {bookings.map(b => (
+                <div key={b.id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-bold text-slate-900">{b.full_name} &middot; {LESSON_TYPES.find(l => l.id === b.lesson_type)?.label || b.lesson_type}</p>
+                    <p className="text-sm text-slate-500">
+                      {b.slots ? `${formatDateStr(b.slots.slot_date)} at ${formatTimeStr(b.slots.slot_time)}` : "Time slot removed"}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">{b.email} &middot; {b.phone}</p>
+                  </div>
+                  <button onClick={() => cancelBooking(b)} className="text-red-600 text-xs font-bold border border-red-200 rounded-lg px-3 py-2 hover:bg-red-50 shrink-0">
+                    Cancel
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function AdminPage() {
+  const [session, setSession] = useState(undefined); // undefined = checking, null = logged out
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  if (session === undefined) {
+    return <div className="min-h-screen bg-slate-900" />;
+  }
+  if (!session) {
+    return <AdminLogin onLoggedIn={() => {}} />;
+  }
+  return <AdminDashboard onLogout={() => supabase.auth.signOut()} />;
+}
+
+
 
 
 /* =========================================================================
@@ -2044,6 +2367,13 @@ function WhatsAppLink({ size = 16, className = "" }) {
 export default function App() {
   const [view, setView] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isAdminRoute, setIsAdminRoute] = useState(() => window.location.hash === "#admin");
+
+  useEffect(() => {
+    const onHashChange = () => setIsAdminRoute(window.location.hash === "#admin");
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
 
   const go = useCallback((id) => {
     setView(id);
@@ -2117,6 +2447,10 @@ export default function App() {
   else content = <HomePage go={go} />;
 
   const isFlashcardDeck = view === "flashcards-deck";
+
+  if (isAdminRoute) {
+    return <AdminPage />;
+  }
 
   return (
     <div className={`min-h-screen flex flex-col ${isFlashcardDeck ? "bg-slate-950" : "bg-white"}`}>
