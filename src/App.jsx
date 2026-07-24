@@ -1513,6 +1513,7 @@ function AdminDashboard({ onLogout }) {
     "Sorry, we're fully booked right now! We'll be back soon with new availability — please check back again soon, or watch out for any last-minute cancellations."
   );
   const [savingPause, setSavingPause] = useState(false);
+  const [pauseError, setPauseError] = useState(null);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -1534,12 +1535,20 @@ function AdminDashboard({ onLogout }) {
 
   const togglePause = async () => {
     setSavingPause(true);
+    setPauseError(null);
     const nextValue = !bookingPaused;
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("app_settings")
       .update({ booking_paused: nextValue, paused_message: pausedMessage })
-      .eq("id", 1);
-    if (!error) setBookingPaused(nextValue);
+      .eq("id", 1)
+      .select();
+    if (error) {
+      setPauseError(error.message || "Unknown error saving the pause setting.");
+    } else if (!data || data.length === 0) {
+      setPauseError("The update didn't apply — no matching row was found or updated (id=1 may be missing, or a permissions rule is blocking it).");
+    } else {
+      setBookingPaused(nextValue);
+    }
     setSavingPause(false);
   };
 
@@ -1614,6 +1623,11 @@ function AdminDashboard({ onLogout }) {
                 {savingPause ? "Saving..." : bookingPaused ? "Resume bookings" : "Pause bookings"}
               </button>
             </div>
+            {pauseError && (
+              <div className="mt-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3">
+                <b>Couldn't save:</b> {pauseError}
+              </div>
+            )}
             <div className="mt-4">
               <label className="text-xs font-bold text-slate-500 block mb-1">Message shown to customers while paused</label>
               <textarea
