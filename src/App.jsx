@@ -1418,6 +1418,41 @@ function AdminLogin({ onLoggedIn }) {
   );
 }
 
+function icsPad(n) {
+  return String(n).padStart(2, "0");
+}
+function toIcsLocalTime(date) {
+  return `${date.getFullYear()}${icsPad(date.getMonth() + 1)}${icsPad(date.getDate())}T${icsPad(date.getHours())}${icsPad(date.getMinutes())}${icsPad(date.getSeconds())}`;
+}
+function lessonDurationMinutes(lessonId) {
+  const lesson = LESSON_TYPES.find(l => l.id === lessonId);
+  const match = lesson ? /(\d+)/.exec(lesson.duration) : null;
+  return match ? parseInt(match[1], 10) : 60;
+}
+function buildBookingIcsDataUrl(booking) {
+  if (!booking.slots) return null;
+  const lesson = LESSON_TYPES.find(l => l.id === booking.lesson_type);
+  const label = lesson?.label || booking.lesson_type;
+  const durationMin = lessonDurationMinutes(booking.lesson_type);
+  const start = new Date(`${booking.slots.slot_date}T${booking.slots.slot_time}`);
+  const end = new Date(start.getTime() + durationMin * 60000);
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//PassDrivingTest.ie//Booking//EN",
+    "BEGIN:VEVENT",
+    `UID:${booking.id}@passdrivingtest.ie`,
+    `DTSTAMP:${toIcsLocalTime(new Date())}`,
+    `DTSTART:${toIcsLocalTime(start)}`,
+    `DTEND:${toIcsLocalTime(end)}`,
+    `SUMMARY:Driving Lesson - ${booking.full_name} (${label})`,
+    `DESCRIPTION:Contact: ${booking.email}\\, ${booking.phone}`,
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ];
+  return `data:text/calendar;charset=utf-8,${encodeURIComponent(lines.join("\r\n"))}`;
+}
+
 function AdminDashboard({ onLogout }) {
   const [slots, setSlots] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -1542,20 +1577,34 @@ function AdminDashboard({ onLogout }) {
           {loading ? <p className="text-slate-400 text-sm">Loading...</p> : (
             <div className="space-y-3">
               {bookings.length === 0 && <p className="text-sm text-slate-400">No bookings yet.</p>}
-              {bookings.map(b => (
-                <div key={b.id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="font-bold text-slate-900">{b.full_name} &middot; {LESSON_TYPES.find(l => l.id === b.lesson_type)?.label || b.lesson_type}</p>
-                    <p className="text-sm text-slate-500">
-                      {b.slots ? `${formatDateStr(b.slots.slot_date)} at ${formatTimeStr(b.slots.slot_time)}` : "Time slot removed"}
-                    </p>
-                    <p className="text-xs text-slate-400 mt-1">{b.email} &middot; {b.phone}</p>
+              {bookings.map(b => {
+                const icsUrl = buildBookingIcsDataUrl(b);
+                return (
+                  <div key={b.id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-bold text-slate-900">{b.full_name} &middot; {LESSON_TYPES.find(l => l.id === b.lesson_type)?.label || b.lesson_type}</p>
+                      <p className="text-sm text-slate-500">
+                        {b.slots ? `${formatDateStr(b.slots.slot_date)} at ${formatTimeStr(b.slots.slot_time)}` : "Time slot removed"}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">{b.email} &middot; {b.phone}</p>
+                    </div>
+                    <div className="flex flex-col gap-2 shrink-0">
+                      {icsUrl && (
+                        <a
+                          href={icsUrl}
+                          download={`lesson-${b.full_name.replace(/\s+/g, "-")}.ics`}
+                          className="text-emerald-700 text-xs font-bold border border-emerald-200 rounded-lg px-3 py-2 hover:bg-emerald-50 text-center"
+                        >
+                          Add to Calendar
+                        </a>
+                      )}
+                      <button onClick={() => cancelBooking(b)} className="text-red-600 text-xs font-bold border border-red-200 rounded-lg px-3 py-2 hover:bg-red-50">
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                  <button onClick={() => cancelBooking(b)} className="text-red-600 text-xs font-bold border border-red-200 rounded-lg px-3 py-2 hover:bg-red-50 shrink-0">
-                    Cancel
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>
