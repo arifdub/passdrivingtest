@@ -55,7 +55,7 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ from: fromAddress, to, subject, html }),
+      body: JSON.stringify({ from: fromAddress, to: String(to).trim().toLowerCase(), subject, html }),
     });
 
   try {
