@@ -1514,6 +1514,7 @@ function AdminDashboard({ onLogout }) {
   );
   const [savingPause, setSavingPause] = useState(false);
   const [pauseError, setPauseError] = useState(null);
+  const [messageSaveStatus, setMessageSaveStatus] = useState(null); // null | "saving" | "saved" | "error"
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -1550,6 +1551,16 @@ function AdminDashboard({ onLogout }) {
       setBookingPaused(nextValue);
     }
     setSavingPause(false);
+  };
+
+  const saveMessage = async () => {
+    setMessageSaveStatus("saving");
+    const { error } = await supabase
+      .from("app_settings")
+      .update({ paused_message: pausedMessage })
+      .eq("id", 1);
+    setMessageSaveStatus(error ? "error" : "saved");
+    if (!error) setTimeout(() => setMessageSaveStatus(null), 2500);
   };
 
   const addBulkSlots = async (e) => {
@@ -1633,10 +1644,24 @@ function AdminDashboard({ onLogout }) {
               <textarea
                 value={pausedMessage}
                 onChange={e => setPausedMessage(e.target.value)}
-                onBlur={() => supabase.from("app_settings").update({ paused_message: pausedMessage }).eq("id", 1)}
-                rows={2}
+                rows={3}
                 className="w-full border-2 border-slate-200 focus:border-emerald-500 outline-none rounded-xl px-3 py-2 text-sm"
               />
+              <div className="flex items-center gap-3 mt-2">
+                <button
+                  onClick={saveMessage}
+                  disabled={messageSaveStatus === "saving"}
+                  className="bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white text-sm font-bold px-4 py-2 rounded-lg transition"
+                >
+                  {messageSaveStatus === "saving" ? "Saving..." : "Save message"}
+                </button>
+                {messageSaveStatus === "saved" && (
+                  <span className="text-emerald-700 text-sm font-semibold">Saved ✓</span>
+                )}
+                {messageSaveStatus === "error" && (
+                  <span className="text-red-600 text-sm font-semibold">Couldn't save — try again</span>
+                )}
+              </div>
             </div>
           </div>
         </section>
