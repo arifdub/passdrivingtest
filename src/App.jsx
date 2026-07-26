@@ -2722,7 +2722,7 @@ export default function App() {
   } else if (view === "booking") content = <BookingPage />;
   else content = <HomePage go={go} />;
 
-  const isFlashcardDeck = view === "flashcards-deck";
+  const isFlashcardDeck = ["flashcards-deck", "signs-deck", "adi-flashcards"].includes(view);
 
   if (isAdminRoute) {
     return <AdminPage />;
