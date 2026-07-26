@@ -330,22 +330,64 @@ function ResourcePage({ icon: Icon, title, tagline, points, comingSoon, cta, go 
 }
 
 function RulesOfRoadPage({ go }) {
+  const decks = [
+    {
+      view: "flashcards-deck",
+      label: "Rules of the Road Flashcards",
+      desc: "153 question-and-answer cards across 20 topics — licences, speed limits, junctions, penalty points, cyclists, pedestrians and more.",
+      icon: Layers,
+      tone: "bg-slate-900",
+    },
+    {
+      view: "signs-deck",
+      label: "Road Sign Flashcards",
+      desc: "See the sign, name the sign. Regulatory, warning, roadworks and motorway signs.",
+      icon: ShieldCheck,
+      tone: "bg-red-600",
+    },
+  ];
+
   return (
-    <ResourcePage
-      go={go}
-      icon={ShieldCheck}
-      title="Rules of the Road"
-      tagline="Ireland's official rules of the road, rewritten in plain, easy-to-follow English — covering everything from licences to road signs."
-      points={[
-        "Licences, learner permits and the driving test",
-        "Speed limits, junctions, roundabouts and motorways",
-        "Traffic signs, road markings, lights and signals",
-        "Rules for cyclists, motorcyclists and pedestrians",
-        "Penalty points, fixed charges and driving bans",
-      ]}
-      comingSoon="The full illustrated study guide is being added here next. In the meantime, test yourself with the Rules of the Road flashcards — all 153 cards are ready now."
-      cta={{ view: "signs-deck", label: "Start Road Sign Flashcards" }}
-    />
+    <div className="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
+      <button
+        onClick={() => go("learning")}
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-700 mb-6"
+      >
+        <ChevronLeft size={14} /> Learning Materials
+      </button>
+
+      <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center mb-5">
+        <ShieldCheck size={24} className="text-white" />
+      </div>
+      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Rules of the Road</h1>
+      <p className="mt-2 text-slate-600 text-base sm:text-lg max-w-xl">
+        Ireland's official rules of the road, in plain English — covering licences, speed limits,
+        junctions, motorways, road signs and penalty points.
+      </p>
+
+      <div className="mt-8 space-y-3">
+        {decks.map(d => (
+          <button
+            key={d.view}
+            onClick={() => go(d.view)}
+            className="w-full text-left flex items-center gap-4 bg-white border border-slate-200 rounded-2xl p-5 hover:border-emerald-400 hover:shadow-lg transition"
+          >
+            <div className={`w-11 h-11 rounded-xl ${d.tone} flex items-center justify-center shrink-0`}>
+              <d.icon size={20} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-slate-900">{d.label}</p>
+              <p className="text-sm text-slate-500 mt-0.5">{d.desc}</p>
+            </div>
+            <ChevronRight size={18} className="text-slate-300 shrink-0" />
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-6">
+        <ComingSoonBanner text="The full illustrated study guide is being added here next — for now, both flashcard decks above are ready to use." />
+      </div>
+    </div>
   );
 }
 
@@ -974,8 +1016,9 @@ function ADITestPage({ go }) {
 function FlashcardsHub({ go }) {
   const decks = [
     { id: "flashcards-deck", label: "Rules of the Road", count: 153, ready: true, desc: "Licences, signs, speed limits, junctions and more." },
+    { id: "signs-deck", label: "Road Signs", count: 91, ready: true, desc: "See the sign, name the sign — regulatory, warning and motorway signs." },
+    { id: "adi-flashcards", label: "ADI Flashcards", count: 62, ready: true, desc: "Test procedure, pedagogy, mechanics and towing." },
     { id: null, label: "Theory Test Flashcards", count: null, ready: false, desc: "Coming soon." },
-    { id: null, label: "ADI Flashcards", count: null, ready: false, desc: "Coming soon." },
   ];
   return (
     <div className="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
@@ -2207,7 +2250,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
             </span>
           </div>
           <p className="text-slate-400 text-sm mt-1">
-            {cards.length} cards &middot; {categories.length} categories &middot; {knownCount}/{total} known in this set
+            {cards.length} cards &middot; {categories.filter(x => cards.some(k => k.c === x.id)).length} categories &middot; {knownCount}/{total} known in this set
           </p>
         </div>
       </header>
@@ -2222,7 +2265,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
           >
             <ListFilter size={13} /> All ({cards.length})
           </button>
-          {categories.map(c => {
+          {categories.filter(c => cards.some(k => k.c === c.id)).map(c => {
             const count = cards.filter(k => k.c === c.id).length;
             const active = activeCat === c.id;
             return (
@@ -2293,11 +2336,13 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
                 </div>
                 <div className="flex-1 flex items-center justify-center">
                   {card.img ? (
-                    <img
-                      src={card.img}
-                      alt="Road sign"
-                      className="max-h-40 sm:max-h-48 w-auto object-contain"
-                    />
+                    <div className="bg-white rounded-2xl px-5 py-4 shadow-inner flex items-center justify-center">
+                      <img
+                        src={card.img}
+                        alt="Road sign"
+                        className="max-h-36 sm:max-h-44 w-auto object-contain"
+                      />
+                    </div>
                   ) : (
                     <p className="text-lg sm:text-xl font-semibold leading-snug">{card.q}</p>
                   )}
@@ -2664,13 +2709,13 @@ export default function App() {
     content = (
       <div className="max-w-3xl mx-auto px-3 sm:px-8 py-6 sm:py-10">
         <FlashcardDeck
-          onBack={() => go("flashcards-hub")}
+          onBack={() => go("rules")}
           cards={CARDS}
           categories={CATEGORIES}
           catLookup={CAT}
           deckTitle="Rules of the Road"
           deckSubtitle="RSA Flashcards"
-          backLabel="Back to Flashcards"
+          backLabel="Back to Rules of the Road"
         />
       </div>
     );
