@@ -4,6 +4,7 @@ import SITE_CONFIG from "./siteConfig";
 import ADI_CATEGORIES from "./adiQuizData";
 import ADI_THEORY_PRACTICE_CATEGORIES from "./adiTheoryPracticeData";
 import { ADI_FLASHCARD_CATEGORIES, ADI_FLASHCARD_CAT, ADI_FLASHCARDS } from "./adiFlashcardsData";
+import { ROAD_SIGN_CATEGORIES, ROAD_SIGN_CAT, ROAD_SIGNS } from "./roadSignsData";
 import {
   Home as HomeIcon, BookOpen, CalendarCheck, Menu as MenuIcon, X as CloseIcon,
   ChevronRight, ChevronLeft, Shuffle, Check, Undo2, ListFilter, ArrowRight,
@@ -40,7 +41,7 @@ const TAB_BAR = [
   { id: "more", label: "More", icon: MenuIcon },
 ];
 
-const LEARNING_GROUP = ["rules", "theory", "adi", "adi-quiz", "adi-theory-quiz", "adi-flashcards", "flashcards-hub", "flashcards-deck", "learning"];
+const LEARNING_GROUP = ["rules", "theory", "adi", "adi-quiz", "adi-theory-quiz", "adi-flashcards", "flashcards-hub", "flashcards-deck", "signs-deck", "learning"];
 
 function isTabActive(tabId, view) {
   if (tabId === "learning") return LEARNING_GROUP.includes(view);
@@ -343,7 +344,7 @@ function RulesOfRoadPage({ go }) {
         "Penalty points, fixed charges and driving bans",
       ]}
       comingSoon="The full illustrated study guide is being added here next. In the meantime, test yourself with the Rules of the Road flashcards — all 153 cards are ready now."
-      cta={{ view: "flashcards-deck", label: "Study Rules of the Road Flashcards" }}
+      cta={{ view: "signs-deck", label: "Start Road Sign Flashcards" }}
     />
   );
 }
@@ -2290,11 +2291,19 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
                     {cat.label} &middot; {card.catIndex}
                   </span>
                 </div>
-                <div className="flex-1 flex items-center">
-                  <p className="text-lg sm:text-xl font-semibold leading-snug">{card.q}</p>
+                <div className="flex-1 flex items-center justify-center">
+                  {card.img ? (
+                    <img
+                      src={card.img}
+                      alt="Road sign"
+                      className="max-h-40 sm:max-h-48 w-auto object-contain"
+                    />
+                  ) : (
+                    <p className="text-lg sm:text-xl font-semibold leading-snug">{card.q}</p>
+                  )}
                 </div>
                 <p className="text-center text-xs text-slate-500 uppercase tracking-widest mt-4">
-                  Tap to reveal &middot; swipe left/right to move
+                  {card.img ? "What is this sign?" : "Tap to reveal"} &middot; swipe to move
                 </p>
               </div>
 
@@ -2311,8 +2320,17 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
                     {cat.label}
                   </span>
                 </div>
-                <div className="flex-1 flex items-center">
-                  <p className="text-lg sm:text-xl font-bold leading-snug">{card.a}</p>
+                <div className="flex-1 flex flex-col items-center justify-center text-center">
+                  {card.img ? (
+                    <>
+                      <p className="text-xl sm:text-2xl font-black leading-tight">{card.name}</p>
+                      {card.meaning && (
+                        <p className="mt-2 text-sm sm:text-base opacity-90 leading-snug">{card.meaning}</p>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-lg sm:text-xl font-bold leading-snug">{card.a}</p>
+                  )}
                 </div>
                 <p className="text-center text-xs opacity-70 uppercase tracking-widest mt-4">
                   Tap to flip back &middot; swipe left/right to move
@@ -2609,6 +2627,21 @@ export default function App() {
         description="126 additional practice questions sourced from real mock test papers and the RSA's own official ADI Stage 1 sample questions — bookmark anything tricky, and see your overall score across every section you attempt."
         note="This is a separate practice set from the Mock Test above, drawn from different source material — use both for the widest coverage."
       />
+    );
+  }
+  else if (view === "signs-deck") {
+    content = (
+      <div className="max-w-3xl mx-auto px-3 sm:px-8 py-6 sm:py-10">
+        <FlashcardDeck
+          onBack={() => go("rules")}
+          cards={ROAD_SIGNS}
+          categories={ROAD_SIGN_CATEGORIES}
+          catLookup={ROAD_SIGN_CAT}
+          deckTitle="Road Signs"
+          deckSubtitle="Identify the sign"
+          backLabel="Back to Rules of the Road"
+        />
+      </div>
     );
   }
   else if (view === "adi-flashcards") {
