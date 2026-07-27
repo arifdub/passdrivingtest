@@ -2084,14 +2084,31 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
   const [known, setKnown] = useState(() => new Set());
   const [review, setReview] = useState(() => new Set());
 
+  // Bookmarks persist in the browser, kept separate per deck.
+  const bmKey = `flashcard-bookmarks-${(deckTitle || "deck").toLowerCase().replace(/\s+/g, "-")}`;
+  const [bookmarks, setBookmarks] = useState(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(bmKey)) || []); }
+    catch (e) { return new Set(); }
+  });
+  const toggleBookmark = (id) => {
+    setBookmarks(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      try { localStorage.setItem(bmKey, JSON.stringify([...next])); } catch (e) {}
+      return next;
+    });
+  };
+
   const deck = useMemo(() => {
     const filtered = activeCat === "all"
       ? cards
-      : cards.filter(c => c.c === activeCat);
+      : activeCat === "__bookmarks"
+        ? cards.filter(c => bookmarks.has(c.id))
+        : cards.filter(c => c.c === activeCat);
     // preserve current shuffle/order among the filtered set
     const orderIndex = new Map(order.map((id, i) => [id, i]));
     return [...filtered].sort((a, b) => (orderIndex.get(a.id) ?? 0) - (orderIndex.get(b.id) ?? 0));
-  }, [activeCat, order, cards]);
+  }, [activeCat, order, cards, bookmarks]);
 
   useEffect(() => { setPos(0); setFlipped(false); }, [activeCat]);
 
@@ -2224,8 +2241,24 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
 
   if (!card) {
     return (
-      <div className="bg-slate-900 text-white flex items-center justify-center p-6 rounded-3xl">
-        <p className="text-slate-400">No cards in this category.</p>
+      <div className="bg-slate-900 text-white rounded-3xl p-8 text-center">
+        {activeCat === "__bookmarks" ? (
+          <>
+            <Star size={28} className="text-amber-400 mx-auto mb-3" />
+            <p className="font-bold">No bookmarks yet</p>
+            <p className="text-slate-400 text-sm mt-1">
+              Tap the star on any card to save it here for review.
+            </p>
+            <button
+              onClick={() => setActiveCat("all")}
+              className="mt-4 text-sm font-bold text-emerald-400 hover:underline"
+            >
+              Back to all cards
+            </button>
+          </>
+        ) : (
+          <p className="text-slate-400">No cards in this category.</p>
+        )}
       </div>
     );
   }
@@ -2264,6 +2297,13 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
               ${activeCat === "all" ? "bg-emerald-400 text-slate-900 border-emerald-400" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
           >
             <ListFilter size={13} /> All ({cards.length})
+          </button>
+          <button
+            onClick={() => setActiveCat("__bookmarks")}
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide border transition
+              ${activeCat === "__bookmarks" ? "bg-amber-400 text-slate-900 border-amber-400" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
+          >
+            <Star size={13} fill={activeCat === "__bookmarks" ? "currentColor" : "none"} /> Bookmarks ({bookmarks.size})
           </button>
           {categories.filter(c => cards.some(k => k.c === c.id)).map(c => {
             const count = cards.filter(k => k.c === c.id).length;
@@ -2328,11 +2368,22 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
               >
                 <div className="flex items-center justify-between mb-4">
                   <span className={`font-mono text-xs px-2 py-1 rounded ${cat.swatch} ${cat.dark ? "text-slate-900" : "text-white"} font-bold`}>
-                    No. {String(card.id).padStart(3, "0")}
+                    No. {String(card.no ?? card.id).padStart(3, "0")}
                   </span>
-                  <span className="text-xs uppercase tracking-widest text-slate-400 font-semibold text-right">
-                    {cat.label} &middot; {card.catIndex}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs uppercase tracking-widest text-slate-400 font-semibold text-right">
+                      {cat.label} &middot; {card.catIndex}
+                    </span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleBookmark(card.id); }}
+                      aria-label={bookmarks.has(card.id) ? "Remove bookmark" : "Bookmark this card"}
+                      className={`p-1.5 rounded-lg border transition ${bookmarks.has(card.id)
+                        ? "border-amber-400 bg-amber-400/15 text-amber-400"
+                        : "border-slate-600 text-slate-500 hover:text-slate-300"}`}
+                    >
+                      <Star size={15} fill={bookmarks.has(card.id) ? "currentColor" : "none"} />
+                    </button>
+                  </div>
                 </div>
                 <div className="flex-1 flex items-center justify-center">
                   {card.img ? (
@@ -2359,7 +2410,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
               >
                 <div className="flex items-center justify-between mb-4">
                   <span className={`font-mono text-xs px-2 py-1 rounded bg-black/20 font-bold`}>
-                    No. {String(card.id).padStart(3, "0")}
+                    No. {String(card.no ?? card.id).padStart(3, "0")}
                   </span>
                   <span className="text-xs uppercase tracking-widest opacity-80 font-semibold text-right">
                     {cat.label}
