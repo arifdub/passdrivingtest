@@ -1116,16 +1116,32 @@ function BookingPage() {
   const loadSlots = useCallback(async () => {
     setLoadingSlots(true);
     setLoadError(null);
+
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);                 // YYYY-MM-DD
+    const nowTimeStr = now.toTimeString().slice(0, 8);                // HH:MM:SS
+
     const { data, error } = await supabase
       .from("slots")
       .select("id, slot_date, slot_time, is_booked")
       .eq("is_booked", false)
+      // Only ever show slots that are still ahead of right now: a future
+      // date, or today's date with a time that hasn't happened yet.
+      .or(`slot_date.gt.${todayStr},and(slot_date.eq.${todayStr},slot_time.gt.${nowTimeStr})`)
       .order("slot_date", { ascending: true })
       .order("slot_time", { ascending: true });
+
     if (error) {
       setLoadError("Couldn't load available times right now. Please try again shortly.");
     } else {
-      setSlots(data || []);
+      // Safety net in case the visitor's device clock lags behind the
+      // server's — never let a past slot slip through either way.
+      const nowCheck = new Date();
+      const fresh = (data || []).filter(s => {
+        const slotAt = new Date(`${s.slot_date}T${s.slot_time}`);
+        return slotAt > nowCheck;
+      });
+      setSlots(fresh);
     }
     setLoadingSlots(false);
   }, []);
@@ -1172,6 +1188,18 @@ function BookingPage() {
 
   const submitBooking = async () => {
     if (!selectedSlot) return;
+
+    // Guard against a slot that was still "upcoming" when the page loaded
+    // but has since passed (e.g. left open overnight).
+    const slotAt = new Date(`${selectedSlot.slot_date}T${selectedSlot.slot_time}`);
+    if (slotAt <= new Date()) {
+      setSubmitError("That time has since passed. Please choose a new slot.");
+      setSelectedSlot(null);
+      setSelectedDate(null);
+      loadSlots();
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
 
