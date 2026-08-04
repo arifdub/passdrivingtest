@@ -1117,30 +1117,29 @@ function BookingPage() {
     setLoadingSlots(true);
     setLoadError(null);
 
-    const now = new Date();
-    const todayStr = now.toISOString().slice(0, 10);                 // YYYY-MM-DD
-    const nowTimeStr = now.toTimeString().slice(0, 8);                // HH:MM:SS
+    // Require at least one full day's notice: today is never bookable,
+    // only tomorrow onward.
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const earliestStr = tomorrow.toISOString().slice(0, 10);          // YYYY-MM-DD
 
     const { data, error } = await supabase
       .from("slots")
       .select("id, slot_date, slot_time, is_booked")
       .eq("is_booked", false)
-      // Only ever show slots that are still ahead of right now: a future
-      // date, or today's date with a time that hasn't happened yet.
-      .or(`slot_date.gt.${todayStr},and(slot_date.eq.${todayStr},slot_time.gt.${nowTimeStr})`)
+      .gte("slot_date", earliestStr)
       .order("slot_date", { ascending: true })
       .order("slot_time", { ascending: true });
 
     if (error) {
       setLoadError("Couldn't load available times right now. Please try again shortly.");
     } else {
-      // Safety net in case the visitor's device clock lags behind the
-      // server's — never let a past slot slip through either way.
-      const nowCheck = new Date();
-      const fresh = (data || []).filter(s => {
-        const slotAt = new Date(`${s.slot_date}T${s.slot_time}`);
-        return slotAt > nowCheck;
-      });
+      // Safety net in case the visitor's device clock is off — never show
+      // today's date either way, even right at midnight.
+      const earliestCheck = new Date();
+      earliestCheck.setDate(earliestCheck.getDate() + 1);
+      earliestCheck.setHours(0, 0, 0, 0);
+      const fresh = (data || []).filter(s => new Date(`${s.slot_date}T00:00:00`) >= earliestCheck);
       setSlots(fresh);
     }
     setLoadingSlots(false);
@@ -1189,11 +1188,13 @@ function BookingPage() {
   const submitBooking = async () => {
     if (!selectedSlot) return;
 
-    // Guard against a slot that was still "upcoming" when the page loaded
-    // but has since passed (e.g. left open overnight).
-    const slotAt = new Date(`${selectedSlot.slot_date}T${selectedSlot.slot_time}`);
-    if (slotAt <= new Date()) {
-      setSubmitError("That time has since passed. Please choose a new slot.");
+    // Guard against a slot that no longer meets the one-day-notice rule —
+    // e.g. the page was left open overnight and "tomorrow" became "today".
+    const earliest = new Date();
+    earliest.setDate(earliest.getDate() + 1);
+    earliest.setHours(0, 0, 0, 0);
+    if (new Date(`${selectedSlot.slot_date}T00:00:00`) < earliest) {
+      setSubmitError("That date no longer has enough notice. Please choose a new slot.");
       setSelectedSlot(null);
       setSelectedDate(null);
       loadSlots();
