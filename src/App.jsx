@@ -27,7 +27,6 @@ const SITE = {
    NAVIGATION
    ========================================================================= */
 const PRIMARY_NAV = [
-  { id: "home", label: "Home" },
   { id: "rules", label: "Rules of the Road" },
   { id: "theory", label: "Theory & Driving Test" },
   { id: "adi", label: "Approved Driving Instructor" },
