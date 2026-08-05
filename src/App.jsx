@@ -9,7 +9,7 @@ import {
   Home as HomeIcon, BookOpen, CalendarCheck, Menu as MenuIcon, X as CloseIcon,
   ChevronRight, ChevronLeft, Shuffle, Check, Undo2, ListFilter, ArrowRight,
   GraduationCap, Car, ShieldCheck, Layers, CheckCircle2, Star, Phone, Mail,
-  MapPin, Clock, Sparkles, Lock, PlayCircle, X as XIcon,
+  MapPin, Clock, Sparkles, Lock, PlayCircle, X as XIcon, Sun, Moon,
 } from "lucide-react";
 
 /* =========================================================================
@@ -62,7 +62,7 @@ function Logo({ compact }) {
       {!compact && (
         <span className="font-black tracking-tight text-lg text-white leading-none">
           Pass<span className="text-emerald-400">DrivingTest</span>
-          <span className="text-slate-400">.ie</span>
+          <span className="text-slate-400 dark:text-slate-500">.ie</span>
         </span>
       )}
     </div>
@@ -71,8 +71,8 @@ function Logo({ compact }) {
 
 function SectionEyebrow({ children, tone = "emerald" }) {
   const tones = {
-    emerald: "text-emerald-700 bg-emerald-50",
-    amber: "text-amber-800 bg-amber-50",
+    emerald: "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40",
+    amber: "text-amber-800 bg-amber-50 dark:bg-amber-950/40",
   };
   return (
     <span className={`inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full ${tones[tone]}`}>
@@ -83,9 +83,9 @@ function SectionEyebrow({ children, tone = "emerald" }) {
 
 function ComingSoonBanner({ text }) {
   return (
-    <div className="flex items-start gap-3 bg-slate-100 border border-slate-200 rounded-2xl p-4">
-      <Sparkles size={18} className="text-slate-500 mt-0.5 shrink-0" />
-      <p className="text-sm text-slate-600">{text}</p>
+    <div className="flex items-start gap-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+      <Sparkles size={18} className="text-slate-500 dark:text-slate-400 mt-0.5 shrink-0" />
+      <p className="text-sm text-slate-600 dark:text-slate-300">{text}</p>
     </div>
   );
 }
@@ -117,7 +117,7 @@ function HomePage({ go }) {
           <div className="mt-7 flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => go("booking")}
-              className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold px-6 py-3 rounded-xl transition"
+              className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 dark:text-white font-bold px-6 py-3 rounded-xl transition"
             >
               <CalendarCheck size={18} /> Book a Lesson
             </button>
@@ -138,13 +138,13 @@ function HomePage({ go }) {
             <button
               key={q.id}
               onClick={() => go(q.id)}
-              className="text-left bg-white rounded-2xl shadow-lg shadow-slate-900/10 border border-slate-100 p-4 sm:p-5 hover:-translate-y-0.5 hover:shadow-xl transition"
+              className="text-left bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-slate-900/10 border border-slate-100 p-4 sm:p-5 hover:-translate-y-0.5 hover:shadow-xl transition"
             >
               <div className={`w-9 h-9 rounded-lg ${q.tone} flex items-center justify-center mb-3`}>
                 <q.icon size={18} className="text-white" />
               </div>
-              <p className="font-bold text-slate-900 text-sm sm:text-base leading-snug">{q.label}</p>
-              <p className="text-xs text-slate-500 mt-1 hidden sm:block">{q.desc}</p>
+              <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug">{q.label}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 hidden sm:block">{q.desc}</p>
             </button>
           ))}
         </div>
@@ -154,16 +154,16 @@ function HomePage({ go }) {
       <section className="max-w-5xl mx-auto px-5 sm:px-8 mt-10 sm:mt-14">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900">153</p>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">Flashcards ready now</p>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">153</p>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Flashcards ready now</p>
           </div>
           <div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900">20</p>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">Topic categories</p>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">20</p>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Topic categories</p>
           </div>
           <div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900">3</p>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">Lesson options available</p>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">3</p>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Lesson options available</p>
           </div>
         </div>
       </section>
@@ -171,10 +171,10 @@ function HomePage({ go }) {
       {/* Learning Materials + Flashcards feature */}
       <section className="max-w-5xl mx-auto px-5 sm:px-8 mt-12 sm:mt-16">
         <SectionEyebrow tone="amber">Learning Materials</SectionEyebrow>
-        <h2 className="mt-3 text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+        <h2 className="mt-3 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           Study with flashcards
         </h2>
-        <p className="mt-2 text-slate-600 max-w-2xl">
+        <p className="mt-2 text-slate-600 dark:text-slate-300 max-w-2xl">
           Bite-sized question-and-answer cards you can flip, swipe and shuffle through —
           built to make the Rules of the Road actually stick.
         </p>
@@ -182,19 +182,19 @@ function HomePage({ go }) {
         <div className="mt-6 bg-slate-900 rounded-3xl p-5 sm:p-8 relative overflow-hidden">
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-6">
             <div className="flex-1">
-              <span className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-400 text-slate-900">
+              <span className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-400 text-slate-900 dark:text-white">
                 Available now
               </span>
               <h3 className="mt-3 text-xl sm:text-2xl font-black text-white">
                 RSA Flashcards: Rules of the Road
               </h3>
-              <p className="mt-2 text-slate-400 text-sm sm:text-base max-w-md">
+              <p className="mt-2 text-slate-400 dark:text-slate-500 text-sm sm:text-base max-w-md">
                 153 cards across 20 categories — licences, speed limits, junctions,
                 signs, motorways, cyclists, pedestrians and more.
               </p>
               <button
                 onClick={() => go("flashcards-deck")}
-                className="mt-5 inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-bold px-5 py-2.5 rounded-xl transition"
+                className="mt-5 inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-slate-900 dark:text-white font-bold px-5 py-2.5 rounded-xl transition"
               >
                 Start studying <ArrowRight size={16} />
               </button>
@@ -206,7 +206,7 @@ function HomePage({ go }) {
                   className="w-20 h-28 sm:w-24 sm:h-32 rounded-xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-center px-2"
                   style={{ transform: `rotate(${(i - 1) * 6}deg)` }}
                 >
-                  <span className="text-slate-400 text-xs font-bold uppercase tracking-wide">{tag}</span>
+                  <span className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wide">{tag}</span>
                 </div>
               ))}
             </div>
@@ -215,7 +215,7 @@ function HomePage({ go }) {
 
         <button
           onClick={() => go("learning")}
-          className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-emerald-700"
+          className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:text-emerald-400"
         >
           Browse all learning materials <ChevronRight size={16} />
         </button>
@@ -230,7 +230,7 @@ function HomePage({ go }) {
           </div>
           <button
             onClick={() => go("booking")}
-            className="inline-flex items-center justify-center gap-2 bg-white text-emerald-700 font-bold px-6 py-3 rounded-xl hover:bg-emerald-50 transition shrink-0"
+            className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 font-bold px-6 py-3 rounded-xl hover:bg-emerald-50 dark:bg-emerald-950/40 transition shrink-0"
           >
             <CalendarCheck size={18} /> Book a Lesson Appointment
           </button>
@@ -253,27 +253,27 @@ function LearningMaterialsHub({ go }) {
   return (
     <div className="max-w-5xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
       <SectionEyebrow tone="amber">Learning Materials</SectionEyebrow>
-      <h1 className="mt-3 text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Everything to help you pass</h1>
-      <p className="mt-2 text-slate-600 max-w-xl">Pick a topic below to start studying.</p>
+      <h1 className="mt-3 text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Everything to help you pass</h1>
+      <p className="mt-2 text-slate-600 dark:text-slate-300 max-w-xl">Pick a topic below to start studying.</p>
 
       <div className="mt-8 grid sm:grid-cols-2 gap-4">
         {items.map(it => (
           <button
             key={it.id}
             onClick={() => go(it.id)}
-            className="text-left bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 hover:border-emerald-400 hover:shadow-lg transition"
+            className="text-left bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 sm:p-6 hover:border-emerald-400 hover:shadow-lg transition"
           >
             <div className="flex items-start justify-between">
               <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center">
                 <it.icon size={20} className="text-white" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wide text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+              <span className="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
                 {it.status}
               </span>
             </div>
-            <p className="mt-4 font-bold text-slate-900 text-lg">{it.label}</p>
-            <p className="text-sm text-slate-500 mt-1">{it.desc}</p>
-            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700">
+            <p className="mt-4 font-bold text-slate-900 dark:text-white text-lg">{it.label}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{it.desc}</p>
+            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
               Open <ChevronRight size={15} />
             </span>
           </button>
@@ -291,7 +291,7 @@ function ResourcePage({ icon: Icon, title, tagline, points, comingSoon, cta, go 
     <div className="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
       <button
         onClick={() => go("learning")}
-        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-700 mb-6"
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-emerald-700 dark:text-emerald-400 mb-6"
       >
         <ChevronLeft size={14} /> Learning Materials
       </button>
@@ -299,14 +299,14 @@ function ResourcePage({ icon: Icon, title, tagline, points, comingSoon, cta, go 
       <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center mb-5">
         <Icon size={24} className="text-white" />
       </div>
-      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">{title}</h1>
-      <p className="mt-2 text-slate-600 text-base sm:text-lg max-w-xl">{tagline}</p>
+      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">{title}</h1>
+      <p className="mt-2 text-slate-600 dark:text-slate-300 text-base sm:text-lg max-w-xl">{tagline}</p>
 
       <ul className="mt-7 space-y-3">
         {points.map((p, i) => (
           <li key={i} className="flex items-start gap-3">
-            <CheckCircle2 size={18} className="text-emerald-600 mt-0.5 shrink-0" />
-            <span className="text-slate-700 text-sm sm:text-base">{p}</span>
+            <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+            <span className="text-slate-700 dark:text-slate-200 text-sm sm:text-base">{p}</span>
           </li>
         ))}
       </ul>
@@ -351,7 +351,7 @@ function RulesOfRoadPage({ go }) {
     <div className="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
       <button
         onClick={() => go("learning")}
-        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-700 mb-6"
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-emerald-700 dark:text-emerald-400 mb-6"
       >
         <ChevronLeft size={14} /> Learning Materials
       </button>
@@ -359,8 +359,8 @@ function RulesOfRoadPage({ go }) {
       <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center mb-5">
         <ShieldCheck size={24} className="text-white" />
       </div>
-      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Rules of the Road</h1>
-      <p className="mt-2 text-slate-600 text-base sm:text-lg max-w-xl">
+      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Rules of the Road</h1>
+      <p className="mt-2 text-slate-600 dark:text-slate-300 text-base sm:text-lg max-w-xl">
         Ireland's official rules of the road, in plain English — covering licences, speed limits,
         junctions, motorways, road signs and penalty points.
       </p>
@@ -370,14 +370,14 @@ function RulesOfRoadPage({ go }) {
           <button
             key={d.view}
             onClick={() => go(d.view)}
-            className="w-full text-left flex items-center gap-4 bg-white border border-slate-200 rounded-2xl p-5 hover:border-emerald-400 hover:shadow-lg transition"
+            className="w-full text-left flex items-center gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 hover:border-emerald-400 hover:shadow-lg transition"
           >
             <div className={`w-11 h-11 rounded-xl ${d.tone} flex items-center justify-center shrink-0`}>
               <d.icon size={20} className="text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-slate-900">{d.label}</p>
-              <p className="text-sm text-slate-500 mt-0.5">{d.desc}</p>
+              <p className="font-bold text-slate-900 dark:text-white">{d.label}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{d.desc}</p>
             </div>
             <ChevronRight size={18} className="text-slate-300 shrink-0" />
           </button>
@@ -472,10 +472,10 @@ function shuffledIndices(n) {
 // Each category's colour family loosely mirrors real sign colours, same
 // idea as the Rules of the Road flashcard categories.
 const ADI_SIGN_STYLE = {
-  regulatory: { bar: "bg-red-600", pill: "bg-red-50 text-red-700" },
-  warning: { bar: "bg-amber-500", pill: "bg-amber-50 text-amber-800" },
-  info: { bar: "bg-blue-600", pill: "bg-blue-50 text-blue-700" },
-  national: { bar: "bg-emerald-600", pill: "bg-emerald-50 text-emerald-700" },
+  regulatory: { bar: "bg-red-600", pill: "bg-red-50 dark:bg-red-950/40 text-red-700" },
+  warning: { bar: "bg-amber-500", pill: "bg-amber-50 dark:bg-amber-950/40 text-amber-800" },
+  info: { bar: "bg-blue-600", pill: "bg-blue-50 dark:bg-blue-950/40 text-blue-700" },
+  national: { bar: "bg-emerald-600", pill: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" },
 };
 
 function AdiCategoryGrid({ categories, best, onStart }) {
@@ -488,21 +488,21 @@ function AdiCategoryGrid({ categories, best, onStart }) {
           <button
             key={cat.id}
             onClick={() => onStart(cat)}
-            className="text-left bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-slate-300 transition flex flex-col"
+            className="text-left bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden hover:shadow-lg hover:border-slate-300 dark:border-slate-600 transition flex flex-col"
           >
             <div className={`h-1.5 ${style.bar}`} />
             <div className="p-5">
-              <p className="font-mono text-xs font-bold text-slate-400 tracking-widest">
+              <p className="font-mono text-xs font-bold text-slate-400 dark:text-slate-500 tracking-widest">
                 SECTION {String(i + 1).padStart(2, "0")}
               </p>
-              <h3 className="mt-2 font-black text-slate-900 text-lg leading-snug">{cat.title}</h3>
-              <p className="mt-1.5 text-sm text-slate-500">{cat.blurb}</p>
+              <h3 className="mt-2 font-black text-slate-900 dark:text-white text-lg leading-snug">{cat.title}</h3>
+              <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{cat.blurb}</p>
               <span className={`mt-3 inline-block text-xs font-bold px-2.5 py-1 rounded-full ${style.pill}`}>
                 Pass mark: {cat.passMarkPct}%{cat.realExamQuestions ? ` (${cat.realExamQuestions} Qs on the real test)` : ""}
               </span>
-              <div className="mt-4 flex items-center justify-between text-xs font-mono font-bold text-slate-500">
+              <div className="mt-4 flex items-center justify-between text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
                 <span>{cat.questions.length} practice questions</span>
-                <span className={bestPct !== undefined ? "text-emerald-700" : ""}>
+                <span className={bestPct !== undefined ? "text-emerald-700 dark:text-emerald-400" : ""}>
                   {bestPct !== undefined ? `Best: ${bestPct}%` : "Not attempted"}
                 </span>
               </div>
@@ -565,14 +565,14 @@ function AdiQuizScreen({ cat, bookmarks, onToggleBookmark, onFinish, onExitToCat
     <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
       <button
         onClick={onExitToCategories}
-        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-700 mb-5"
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-emerald-700 dark:text-emerald-400 mb-5"
       >
         <ChevronLeft size={14} /> All sections
       </button>
 
       <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
-        <span className="font-black text-slate-900">{cat.title}</span>
-        <span className="font-mono text-xs font-bold text-slate-500">PASS MARK: {cat.passMarkPct}%</span>
+        <span className="font-black text-slate-900 dark:text-white">{cat.title}</span>
+        <span className="font-mono text-xs font-bold text-slate-500 dark:text-slate-400">PASS MARK: {cat.passMarkPct}%</span>
       </div>
 
       {/* progress */}
@@ -586,20 +586,20 @@ function AdiQuizScreen({ cat, bookmarks, onToggleBookmark, onFinish, onExitToCat
             🚗
           </div>
         </div>
-        <div className="flex justify-between mt-2 font-mono text-xs font-bold text-slate-500">
+        <div className="flex justify-between mt-2 font-mono text-xs font-bold text-slate-500 dark:text-slate-400">
           <span>QUESTION {qIndex + 1} / {total}</span>
           <span>SCORE {score}</span>
         </div>
       </div>
 
       {/* question card */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-7 shadow-sm">
         <div className="flex items-start justify-between gap-3 mb-6">
-          <p className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">{q.q}</p>
+          <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-snug">{q.q}</p>
           <button
             onClick={() => onToggleBookmark(qKey)}
             aria-label={isBookmarked ? "Remove bookmark" : "Bookmark this question"}
-            className={`shrink-0 p-2 rounded-lg border-2 transition ${isBookmarked ? "border-amber-400 bg-amber-50 text-amber-600" : "border-slate-200 text-slate-300 hover:border-slate-300 hover:text-slate-400"}`}
+            className={`shrink-0 p-2 rounded-lg border-2 transition ${isBookmarked ? "border-amber-400 bg-amber-50 dark:bg-amber-950/40 text-amber-600" : "border-slate-200 dark:border-slate-700 text-slate-300 hover:border-slate-300 dark:border-slate-600 hover:text-slate-400 dark:text-slate-500"}`}
           >
             <Star size={18} fill={isBookmarked ? "currentColor" : "none"} />
           </button>
@@ -609,17 +609,17 @@ function AdiQuizScreen({ cat, bookmarks, onToggleBookmark, onFinish, onExitToCat
           {optionOrder.map((origIndex, displayIndex) => {
             const isChosen = chosenDisplayIndex === displayIndex;
             const isCorrectOpt = displayIndex === correctDisplayIndex;
-            let stateClasses = "border-slate-200 hover:border-emerald-400 hover:bg-emerald-50";
-            let letterClasses = "border-slate-200 bg-slate-50 text-slate-500";
+            let stateClasses = "border-slate-200 dark:border-slate-700 hover:border-emerald-400 hover:bg-emerald-50 dark:bg-emerald-950/40";
+            let letterClasses = "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400";
             if (answered) {
               if (isCorrectOpt) {
-                stateClasses = "border-emerald-500 bg-emerald-50";
+                stateClasses = "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40";
                 letterClasses = "border-emerald-500 bg-emerald-500 text-white";
               } else if (isChosen) {
-                stateClasses = "border-red-500 bg-red-50";
+                stateClasses = "border-red-500 bg-red-50 dark:bg-red-950/40";
                 letterClasses = "border-red-500 bg-red-500 text-white";
               } else {
-                stateClasses = "border-slate-200 opacity-50";
+                stateClasses = "border-slate-200 dark:border-slate-700 opacity-50";
               }
             }
             return (
@@ -627,7 +627,7 @@ function AdiQuizScreen({ cat, bookmarks, onToggleBookmark, onFinish, onExitToCat
                 key={origIndex}
                 disabled={answered}
                 onClick={() => selectAnswer(displayIndex)}
-                className={`flex items-center gap-3.5 text-left border-2 rounded-xl px-4 py-3.5 font-bold text-slate-800 transition ${stateClasses}`}
+                className={`flex items-center gap-3.5 text-left border-2 rounded-xl px-4 py-3.5 font-bold text-slate-800 dark:text-white transition ${stateClasses}`}
               >
                 <span className={`w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 font-black text-sm ${letterClasses}`}>
                   {letters[displayIndex]}
@@ -639,7 +639,7 @@ function AdiQuizScreen({ cat, bookmarks, onToggleBookmark, onFinish, onExitToCat
         </div>
 
         {answered && (
-          <div className="mt-5 rounded-xl bg-blue-50 border-l-4 border-blue-600 p-4 text-sm text-slate-700 leading-relaxed">
+          <div className="mt-5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border-l-4 border-blue-600 p-4 text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
             <b className="text-blue-800">{chosenDisplayIndex === correctDisplayIndex ? "Correct." : "Not quite."}</b> {q.explain}
           </div>
         )}
@@ -648,7 +648,7 @@ function AdiQuizScreen({ cat, bookmarks, onToggleBookmark, onFinish, onExitToCat
           <button
             disabled={!answered}
             onClick={nextQuestion}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold px-6 py-3 rounded-xl transition"
+            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 dark:text-slate-500 text-white font-bold px-6 py-3 rounded-xl transition"
           >
             {qIndex === total - 1 ? "See results" : "Next question"} <ArrowRight size={16} />
           </button>
@@ -665,29 +665,29 @@ function AdiResultsScreen({ cat, result, onRetry, onAllSections }) {
 
   return (
     <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
-      <div className="bg-white border border-slate-200 rounded-2xl p-7 sm:p-10 text-center shadow-sm">
-        <p className={`text-6xl sm:text-7xl font-black ${passed ? "text-emerald-600" : "text-red-600"}`}>{pct}%</p>
-        <p className="mt-3 text-slate-600 font-bold">{score} of {total} correct &middot; {cat.title}</p>
-        <p className="mt-1 text-xs font-mono font-bold text-slate-400">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-7 sm:p-10 text-center shadow-sm">
+        <p className={`text-6xl sm:text-7xl font-black ${passed ? "text-emerald-600 dark:text-emerald-400" : "text-red-600"}`}>{pct}%</p>
+        <p className="mt-3 text-slate-600 dark:text-slate-300 font-bold">{score} of {total} correct &middot; {cat.title}</p>
+        <p className="mt-1 text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
           Pass mark for this section: {cat.passMarkPct}%{cat.realExamQuestions ? ` (${cat.realExamQuestions} questions on the actual test)` : ""}
         </p>
         <span className={`inline-block mt-5 px-4 py-2 rounded-full text-sm font-black
-          ${passed ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+          ${passed ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" : "bg-red-50 dark:bg-red-950/40 text-red-700"}`}>
           {passed ? "Above pass mark" : "Below pass mark — keep practising"}
         </span>
       </div>
 
       <div className="mt-8">
-        <p className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">Review this section</p>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">Review this section</p>
         <div className="space-y-3">
           {log.map((entry, i) => (
-            <div key={i} className={`bg-white border rounded-xl p-4 ${entry.correct ? "border-emerald-200 border-l-4 border-l-emerald-500" : "border-red-200 border-l-4 border-l-red-500"}`}>
-              <p className="font-bold text-slate-900 text-sm mb-2">{entry.question}</p>
-              <p className="text-sm text-slate-600">Your answer: <b className="text-slate-900">{entry.chosenText}</b></p>
+            <div key={i} className={`bg-white dark:bg-slate-900 border rounded-xl p-4 ${entry.correct ? "border-emerald-200 border-l-4 border-l-emerald-500" : "border-red-200 border-l-4 border-l-red-500"}`}>
+              <p className="font-bold text-slate-900 dark:text-white text-sm mb-2">{entry.question}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">Your answer: <b className="text-slate-900 dark:text-white">{entry.chosenText}</b></p>
               {!entry.correct && (
-                <p className="text-sm text-slate-600">Correct answer: <b className="text-slate-900">{entry.correctText}</b></p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">Correct answer: <b className="text-slate-900 dark:text-white">{entry.correctText}</b></p>
               )}
-              <p className="text-sm text-slate-500 mt-2 leading-relaxed">{entry.explain}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">{entry.explain}</p>
             </div>
           ))}
         </div>
@@ -702,7 +702,7 @@ function AdiResultsScreen({ cat, result, onRetry, onAllSections }) {
         </button>
         <button
           onClick={onAllSections}
-          className="inline-flex items-center gap-2 border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-bold px-5 py-3 rounded-xl transition"
+          className="inline-flex items-center gap-2 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-bold px-5 py-3 rounded-xl transition"
         >
           Choose another section
         </button>
@@ -727,41 +727,41 @@ function AdiBookmarksScreen({ categories, bookmarks, onToggleBookmark, onBack })
     <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-700 mb-5"
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-emerald-700 dark:text-emerald-400 mb-5"
       >
         <ChevronLeft size={14} /> All sections
       </button>
       <div className="flex items-center gap-2 mb-2">
         <Star size={20} className="text-amber-500" fill="currentColor" />
-        <h2 className="text-2xl font-black text-slate-900">Bookmarked Questions</h2>
+        <h2 className="text-2xl font-black text-slate-900 dark:text-white">Bookmarked Questions</h2>
       </div>
-      <p className="text-slate-500 text-sm mb-6">
+      <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
         Questions you've starred while practising — a quick way to revisit anything you found tricky.
       </p>
 
       {items.length === 0 ? (
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 text-center text-slate-500">
+        <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center text-slate-500 dark:text-slate-400">
           No bookmarks yet. Tap the star on any question during a practice session to save it here.
         </div>
       ) : (
         <div className="space-y-3">
           {items.map(({ key, cat, q }) => (
-            <div key={key} className="bg-white border border-slate-200 rounded-xl p-4">
+            <div key={key} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">{cat.title}</p>
-                  <p className="font-bold text-slate-900 text-sm">{q.q}</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{cat.title}</p>
+                  <p className="font-bold text-slate-900 dark:text-white text-sm">{q.q}</p>
                 </div>
                 <button
                   onClick={() => onToggleBookmark(key)}
                   aria-label="Remove bookmark"
-                  className="shrink-0 p-2 rounded-lg border-2 border-amber-400 bg-amber-50 text-amber-600"
+                  className="shrink-0 p-2 rounded-lg border-2 border-amber-400 bg-amber-50 dark:bg-amber-950/40 text-amber-600"
                 >
                   <Star size={16} fill="currentColor" />
                 </button>
               </div>
-              <p className="text-sm text-emerald-700 font-semibold mt-2">Correct answer: {q.options[q.correct]}</p>
-              <p className="text-sm text-slate-500 mt-1 leading-relaxed">{q.explain}</p>
+              <p className="text-sm text-emerald-700 dark:text-emerald-400 font-semibold mt-2">Correct answer: {q.options[q.correct]}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{q.explain}</p>
             </div>
           ))}
         </div>
@@ -775,20 +775,20 @@ function AdiOverallResultScreen({ overall, passThreshold, onKeepGoing, onStartOv
   const passed = pct >= passThreshold;
   return (
     <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
-      <div className="bg-white border border-slate-200 rounded-2xl p-7 sm:p-10 text-center shadow-sm">
-        <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Overall Practice Result</p>
-        <p className={`text-6xl sm:text-7xl font-black ${passed ? "text-emerald-600" : "text-red-600"}`}>{pct}%</p>
-        <p className="mt-3 text-slate-600 font-bold">{overall.correct} of {overall.total} correct across this session</p>
-        <p className="mt-1 text-xs font-mono font-bold text-slate-400">Pass threshold: {passThreshold}%</p>
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-7 sm:p-10 text-center shadow-sm">
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Overall Practice Result</p>
+        <p className={`text-6xl sm:text-7xl font-black ${passed ? "text-emerald-600 dark:text-emerald-400" : "text-red-600"}`}>{pct}%</p>
+        <p className="mt-3 text-slate-600 dark:text-slate-300 font-bold">{overall.correct} of {overall.total} correct across this session</p>
+        <p className="mt-1 text-xs font-mono font-bold text-slate-400 dark:text-slate-500">Pass threshold: {passThreshold}%</p>
         <span className={`inline-block mt-5 px-5 py-2.5 rounded-full text-base font-black
-          ${passed ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+          ${passed ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" : "bg-red-50 dark:bg-red-950/40 text-red-700"}`}>
           {passed ? "PASS" : "FAIL"}
         </span>
       </div>
       <div className="flex flex-wrap gap-3 mt-7 justify-center">
         <button
           onClick={onKeepGoing}
-          className="inline-flex items-center gap-2 border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-bold px-5 py-3 rounded-xl transition"
+          className="inline-flex items-center gap-2 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-bold px-5 py-3 rounded-xl transition"
         >
           Keep practising
         </button>
@@ -844,17 +844,17 @@ function AdiQuizApp({ onBack, categories, storageKey, title, badge, description,
         <div className="max-w-2xl mx-auto px-5 sm:px-8 py-8 sm:py-10">
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 mb-4"
+            className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-emerald-400 mb-4"
           >
             <ChevronLeft size={14} /> Back to Approved Driving Instructor
           </button>
-          <span className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-400 text-slate-900">
+          <span className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-400 text-slate-900 dark:text-white">
             {badge}
           </span>
           <h1 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight">{title}</h1>
           <p className="mt-2 text-slate-300 text-sm sm:text-base max-w-xl">{description}</p>
           {note && (
-            <p className="mt-3 text-xs text-slate-400 max-w-xl leading-relaxed border-t border-slate-800 pt-3">{note}</p>
+            <p className="mt-3 text-xs text-slate-400 dark:text-slate-500 max-w-xl leading-relaxed border-t border-slate-800 pt-3">{note}</p>
           )}
 
           {overall.total > 0 && (
@@ -873,7 +873,7 @@ function AdiQuizApp({ onBack, categories, storageKey, title, badge, description,
               </div>
               <button
                 onClick={() => setStage("overall")}
-                className="shrink-0 text-xs font-bold uppercase tracking-wide bg-white text-slate-900 px-3 py-2 rounded-lg hover:bg-slate-100"
+                className="shrink-0 text-xs font-bold uppercase tracking-wide bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-lg hover:bg-slate-100 dark:bg-slate-800"
               >
                 Finish &amp; See Result
               </button>
@@ -887,7 +887,7 @@ function AdiQuizApp({ onBack, categories, storageKey, title, badge, description,
           <div className="flex justify-end mb-4">
             <button
               onClick={() => setStage("bookmarks")}
-              className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber-700 bg-amber-50 px-3 py-2 rounded-full hover:bg-amber-100"
+              className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber-700 bg-amber-50 dark:bg-amber-950/40 px-3 py-2 rounded-full hover:bg-amber-100"
             >
               <Star size={14} fill="currentColor" /> Bookmarks ({bookmarks.length})
             </button>
@@ -934,7 +934,7 @@ function AdiQuizApp({ onBack, categories, storageKey, title, badge, description,
         />
       )}
 
-      <div className="max-w-2xl mx-auto px-5 sm:px-8 pb-10 text-center text-xs text-slate-400 leading-relaxed">
+      <div className="max-w-2xl mx-auto px-5 sm:px-8 pb-10 text-center text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
         Content grounded in RSA source material — the Driving Instructor's Handbook, official ADI Stage 1
         sample questions, and the Driver Tester Marking Guidelines. This is an independent practice tool,
         not affiliated with the RSA — always confirm current requirements at rsa.ie.
@@ -974,7 +974,7 @@ function ADITestPage({ go }) {
     <div className="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
       <button
         onClick={() => go("learning")}
-        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-700 mb-6"
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-emerald-700 dark:text-emerald-400 mb-6"
       >
         <ChevronLeft size={14} /> Learning Materials
       </button>
@@ -982,8 +982,8 @@ function ADITestPage({ go }) {
       <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center mb-5">
         <GraduationCap size={24} className="text-white" />
       </div>
-      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Approved Driving Instructor</h1>
-      <p className="mt-2 text-slate-600 text-base sm:text-lg max-w-xl">
+      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Approved Driving Instructor</h1>
+      <p className="mt-2 text-slate-600 dark:text-slate-300 text-base sm:text-lg max-w-xl">
         Everything to prepare for the ADI Stage 1 theory test — grounded in RSA source material,
         official sample questions, and real mock papers.
       </p>
@@ -993,14 +993,14 @@ function ADITestPage({ go }) {
           <button
             key={it.view}
             onClick={() => go(it.view)}
-            className="w-full text-left flex items-center gap-4 bg-white border border-slate-200 rounded-2xl p-5 hover:border-emerald-400 hover:shadow-lg transition"
+            className="w-full text-left flex items-center gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 hover:border-emerald-400 hover:shadow-lg transition"
           >
             <div className={`w-11 h-11 rounded-xl ${it.tone} flex items-center justify-center shrink-0`}>
               <it.icon size={20} className="text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-slate-900">{it.label}</p>
-              <p className="text-sm text-slate-500 mt-0.5">{it.desc}</p>
+              <p className="font-bold text-slate-900 dark:text-white">{it.label}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{it.desc}</p>
             </div>
             <ChevronRight size={18} className="text-slate-300 shrink-0" />
           </button>
@@ -1024,14 +1024,14 @@ function FlashcardsHub({ go }) {
     <div className="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
       <button
         onClick={() => go("learning")}
-        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-700 mb-6"
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-emerald-700 dark:text-emerald-400 mb-6"
       >
         <ChevronLeft size={14} /> Learning Materials
       </button>
 
       <SectionEyebrow tone="amber">Flashcards</SectionEyebrow>
-      <h1 className="mt-3 text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">RSA Flashcards</h1>
-      <p className="mt-2 text-slate-600 max-w-xl">Quick-fire question-and-answer decks for active recall study.</p>
+      <h1 className="mt-3 text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">RSA Flashcards</h1>
+      <p className="mt-2 text-slate-600 dark:text-slate-300 max-w-xl">Quick-fire question-and-answer decks for active recall study.</p>
 
       <div className="mt-7 space-y-3">
         {decks.map(d => (
@@ -1042,14 +1042,14 @@ function FlashcardsHub({ go }) {
             className={`w-full text-left flex items-center gap-4 rounded-2xl p-5 border transition
               ${d.ready
                 ? "bg-slate-900 border-slate-800 hover:border-emerald-400"
-                : "bg-slate-50 border-slate-200 opacity-70 cursor-not-allowed"}`}
+                : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-70 cursor-not-allowed"}`}
           >
             <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${d.ready ? "bg-emerald-400" : "bg-slate-300"}`}>
-              {d.ready ? <Layers size={20} className="text-slate-900" /> : <Lock size={18} className="text-slate-500" />}
+              {d.ready ? <Layers size={20} className="text-slate-900 dark:text-white" /> : <Lock size={18} className="text-slate-500 dark:text-slate-400" />}
             </div>
             <div className="flex-1">
-              <p className={`font-bold ${d.ready ? "text-white" : "text-slate-600"}`}>{d.label}</p>
-              <p className={`text-sm mt-0.5 ${d.ready ? "text-slate-400" : "text-slate-400"}`}>
+              <p className={`font-bold ${d.ready ? "text-white" : "text-slate-600 dark:text-slate-300"}`}>{d.label}</p>
+              <p className={`text-sm mt-0.5 ${d.ready ? "text-slate-400 dark:text-slate-500" : "text-slate-400 dark:text-slate-500"}`}>
                 {d.ready ? `${d.count} cards \u00b7 20 categories` : d.desc}
               </p>
             </div>
@@ -1096,6 +1096,7 @@ function BookingPage() {
   const [confirmed, setConfirmed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [staleNotice, setStaleNotice] = useState(null);
   const [bookingPaused, setBookingPaused] = useState(null); // null = still checking
   const [pausedMessage, setPausedMessage] = useState("");
 
@@ -1167,8 +1168,8 @@ function BookingPage() {
         <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto">
           <Clock size={32} className="text-amber-600" />
         </div>
-        <h1 className="mt-5 text-2xl sm:text-3xl font-black text-slate-900">Bookings paused</h1>
-        <p className="mt-3 text-slate-600 leading-relaxed">{pausedMessage}</p>
+        <h1 className="mt-5 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Bookings paused</h1>
+        <p className="mt-3 text-slate-600 dark:text-slate-300 leading-relaxed">{pausedMessage}</p>
       </div>
     );
   }
@@ -1182,6 +1183,7 @@ function BookingPage() {
   const startOver = () => {
     setStep(1); setLessonType(null); setSelectedDate(null); setSelectedSlot(null);
     setContact({ name: "", email: "", phone: "" }); setConfirmed(false); setSubmitError(null);
+    setStaleNotice(null);
     loadSlots();
   };
 
@@ -1214,9 +1216,14 @@ function BookingPage() {
       .select();
 
     if (updateError || !updated || updated.length === 0) {
-      setSubmitError("Sorry — that time was just taken by someone else. Please pick another.");
-      setSubmitting(false);
+      // Don't alarm the visitor with a hard error — just quietly drop this
+      // one slot from the list (it's no longer real) and send them back
+      // to pick a different time. Nothing scary, nothing to dismiss.
+      setSlots(prev => prev.filter(s => s.id !== selectedSlot.id));
       setSelectedSlot(null);
+      setSubmitting(false);
+      setStep(2);
+      setStaleNotice("That time just became unavailable — please pick another.");
       loadSlots();
       return;
     }
@@ -1259,19 +1266,19 @@ function BookingPage() {
     return (
       <div className="max-w-lg mx-auto px-5 sm:px-8 py-14 sm:py-20 text-center">
         <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto">
-          <CheckCircle2 size={32} className="text-emerald-600" />
+          <CheckCircle2 size={32} className="text-emerald-600 dark:text-emerald-400" />
         </div>
-        <h1 className="mt-5 text-2xl sm:text-3xl font-black text-slate-900">Lesson booked</h1>
-        <p className="mt-2 text-slate-600">
+        <h1 className="mt-5 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Lesson booked</h1>
+        <p className="mt-2 text-slate-600 dark:text-slate-300">
           We've booked your {selectedLesson.label.toLowerCase()} for{" "}
-          <span className="font-semibold text-slate-900">{formatDateStr(selectedSlot.slot_date)} at {formatTimeStr(selectedSlot.slot_time)}</span>.
-          A confirmation will be sent to <span className="font-semibold text-slate-900">{contact.email}</span>.
+          <span className="font-semibold text-slate-900 dark:text-white">{formatDateStr(selectedSlot.slot_date)} at {formatTimeStr(selectedSlot.slot_time)}</span>.
+          A confirmation will be sent to <span className="font-semibold text-slate-900 dark:text-white">{contact.email}</span>.
         </p>
-        <div className="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-5 text-left text-sm space-y-2">
-          <div className="flex justify-between"><span className="text-slate-500">Lesson</span><span className="font-semibold text-slate-900">{selectedLesson.label}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">Date</span><span className="font-semibold text-slate-900">{formatDateStr(selectedSlot.slot_date)}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">Time</span><span className="font-semibold text-slate-900">{formatTimeStr(selectedSlot.slot_time)}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">Fee</span><span className="font-semibold text-slate-900">{selectedLesson.price}</span></div>
+        <div className="mt-6 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 text-left text-sm space-y-2">
+          <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Lesson</span><span className="font-semibold text-slate-900 dark:text-white">{selectedLesson.label}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Date</span><span className="font-semibold text-slate-900 dark:text-white">{formatDateStr(selectedSlot.slot_date)}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Time</span><span className="font-semibold text-slate-900 dark:text-white">{formatTimeStr(selectedSlot.slot_time)}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Fee</span><span className="font-semibold text-slate-900 dark:text-white">{selectedLesson.price}</span></div>
         </div>
         <button
           onClick={startOver}
@@ -1286,15 +1293,15 @@ function BookingPage() {
   return (
     <div className="max-w-2xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
       <SectionEyebrow tone="emerald">Book a Lesson</SectionEyebrow>
-      <h1 className="mt-3 text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Book your lesson</h1>
-      <p className="mt-2 text-slate-600">Choose a lesson, pick a real available slot, and confirm your details.</p>
+      <h1 className="mt-3 text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Book your lesson</h1>
+      <p className="mt-2 text-slate-600 dark:text-slate-300">Choose a lesson, pick a real available slot, and confirm your details.</p>
 
       {/* Stepper */}
       <div className="flex items-center gap-2 mt-7 mb-8">
         {[1, 2, 3].map(n => (
           <React.Fragment key={n}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0
-              ${step >= n ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-500"}`}>
+              ${step >= n ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-500 dark:text-slate-400"}`}>
               {n}
             </div>
             {n < 3 && <div className={`flex-1 h-1 rounded ${step > n ? "bg-emerald-600" : "bg-slate-200"}`} />}
@@ -1305,30 +1312,30 @@ function BookingPage() {
       {/* Step 1: lesson type */}
       {step === 1 && (
         <div>
-          <p className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-3">Select a lesson</p>
+          <p className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">Select a lesson</p>
           <div className="space-y-3">
             {LESSON_TYPES.map(t => (
               <button
                 key={t.id}
                 onClick={() => setLessonType(t.id)}
                 className={`w-full flex items-center gap-4 rounded-2xl p-4 border-2 text-left transition
-                  ${lessonType === t.id ? "border-emerald-600 bg-emerald-50" : "border-slate-200 hover:border-slate-300"}`}
+                  ${lessonType === t.id ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40" : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600"}`}
               >
                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${lessonType === t.id ? "bg-emerald-600" : "bg-slate-900"}`}>
                   <t.icon size={20} className="text-white" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-slate-900">{t.label}</p>
-                  <p className="text-sm text-slate-500">{t.duration} &middot; {t.price}</p>
+                  <p className="font-bold text-slate-900 dark:text-white">{t.label}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">{t.duration} &middot; {t.price}</p>
                 </div>
-                {lessonType === t.id && <CheckCircle2 size={20} className="text-emerald-600 shrink-0" />}
+                {lessonType === t.id && <CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400 shrink-0" />}
               </button>
             ))}
           </div>
           <button
             disabled={!canContinueStep1}
             onClick={() => setStep(2)}
-            className="mt-7 w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold px-6 py-3 rounded-xl transition"
+            className="mt-7 w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 dark:text-slate-500 text-white font-bold px-6 py-3 rounded-xl transition"
           >
             Continue <ArrowRight size={16} />
           </button>
@@ -1338,21 +1345,24 @@ function BookingPage() {
       {/* Step 2: date/time — real availability from Supabase */}
       {step === 2 && (
         <div>
+          {staleNotice && (
+            <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 text-blue-700 text-sm rounded-xl p-4 mb-4">{staleNotice}</div>
+          )}
           {loadingSlots && (
-            <p className="text-slate-500 text-sm">Loading available times...</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Loading available times...</p>
           )}
           {loadError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-4">{loadError}</div>
+            <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 text-red-700 text-sm rounded-xl p-4">{loadError}</div>
           )}
           {!loadingSlots && !loadError && dateGroups.length === 0 && (
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center text-slate-500 text-sm">
+            <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 text-center text-slate-500 dark:text-slate-400 text-sm">
               No lesson times are open right now — please check back soon, or contact us directly.
             </div>
           )}
 
           {!loadingSlots && dateGroups.length > 0 && (
             <>
-              <p className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-3">Choose a date</p>
+              <p className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">Choose a date</p>
               <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
                 {dateGroups.map(g => {
                   const d = new Date(g.date + "T00:00:00");
@@ -1361,11 +1371,11 @@ function BookingPage() {
                       key={g.date}
                       onClick={() => { setSelectedDate(g.date); setSelectedSlot(null); }}
                       className={`shrink-0 flex flex-col items-center justify-center w-20 h-20 rounded-2xl border-2 transition
-                        ${selectedDate === g.date ? "border-emerald-600 bg-emerald-50" : "border-slate-200 hover:border-slate-300"}`}
+                        ${selectedDate === g.date ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40" : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600"}`}
                     >
-                      <span className="text-xs font-semibold text-slate-500">{d.toLocaleDateString("en-IE", { weekday: "short" })}</span>
-                      <span className="text-lg font-black text-slate-900">{d.getDate()}</span>
-                      <span className="text-xs text-slate-500">{d.toLocaleDateString("en-IE", { month: "short" })}</span>
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{d.toLocaleDateString("en-IE", { weekday: "short" })}</span>
+                      <span className="text-lg font-black text-slate-900 dark:text-white">{d.getDate()}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">{d.toLocaleDateString("en-IE", { month: "short" })}</span>
                     </button>
                   );
                 })}
@@ -1373,14 +1383,14 @@ function BookingPage() {
 
               {selectedDate && (
                 <>
-                  <p className="text-sm font-bold uppercase tracking-widest text-slate-500 mt-6 mb-3">Choose a time</p>
+                  <p className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-6 mb-3">Choose a time</p>
                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                     {slotsForSelectedDate.map(s => (
                       <button
                         key={s.id}
-                        onClick={() => setSelectedSlot(s)}
+                        onClick={() => { setSelectedSlot(s); setStaleNotice(null); }}
                         className={`py-2.5 rounded-xl border-2 text-sm font-bold transition
-                          ${selectedSlot?.id === s.id ? "border-emerald-600 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-700 hover:border-slate-300"}`}
+                          ${selectedSlot?.id === s.id ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" : "border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:border-slate-600"}`}
                       >
                         {formatTimeStr(s.slot_time)}
                       </button>
@@ -1394,14 +1404,14 @@ function BookingPage() {
           <div className="flex gap-3 mt-7">
             <button
               onClick={() => setStep(1)}
-              className="flex items-center gap-1.5 px-5 py-3 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-50"
+              className="flex items-center gap-1.5 px-5 py-3 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-50 dark:bg-slate-800"
             >
               <ChevronLeft size={16} /> Back
             </button>
             <button
               disabled={!canContinueStep2}
               onClick={() => setStep(3)}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold px-6 py-3 rounded-xl transition"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 dark:text-slate-500 text-white font-bold px-6 py-3 rounded-xl transition"
             >
               Continue <ArrowRight size={16} />
             </button>
@@ -1412,61 +1422,61 @@ function BookingPage() {
       {/* Step 3: contact details */}
       {step === 3 && (
         <div>
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6 flex items-center gap-3 text-sm">
-            <Clock size={16} className="text-slate-500 shrink-0" />
-            <span className="text-slate-700">
+          <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-6 flex items-center gap-3 text-sm">
+            <Clock size={16} className="text-slate-500 dark:text-slate-400 shrink-0" />
+            <span className="text-slate-700 dark:text-slate-200">
               {selectedLesson?.label} &middot; {selectedSlot && formatDateStr(selectedSlot.slot_date)} at {selectedSlot && formatTimeStr(selectedSlot.slot_time)}
             </span>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-bold text-slate-700 block mb-1.5">Full name</label>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-200 block mb-1.5">Full name</label>
               <input
                 type="text"
                 value={contact.name}
                 onChange={e => setContact({ ...contact, name: e.target.value })}
                 placeholder="Jane Murphy"
-                className="w-full border-2 border-slate-200 focus:border-emerald-500 outline-none rounded-xl px-4 py-3 text-slate-900"
+                className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 outline-none rounded-xl px-4 py-3 text-slate-900 dark:text-white"
               />
             </div>
             <div>
-              <label className="text-sm font-bold text-slate-700 block mb-1.5">Email</label>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-200 block mb-1.5">Email</label>
               <input
                 type="email"
                 value={contact.email}
                 onChange={e => setContact({ ...contact, email: e.target.value })}
                 placeholder="jane@example.com"
-                className="w-full border-2 border-slate-200 focus:border-emerald-500 outline-none rounded-xl px-4 py-3 text-slate-900"
+                className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 outline-none rounded-xl px-4 py-3 text-slate-900 dark:text-white"
               />
             </div>
             <div>
-              <label className="text-sm font-bold text-slate-700 block mb-1.5">Phone number</label>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-200 block mb-1.5">Phone number</label>
               <input
                 type="tel"
                 value={contact.phone}
                 onChange={e => setContact({ ...contact, phone: e.target.value })}
                 placeholder="087 123 4567"
-                className="w-full border-2 border-slate-200 focus:border-emerald-500 outline-none rounded-xl px-4 py-3 text-slate-900"
+                className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 outline-none rounded-xl px-4 py-3 text-slate-900 dark:text-white"
               />
             </div>
           </div>
 
           {submitError && (
-            <div className="mt-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-4">{submitError}</div>
+            <div className="mt-4 bg-red-50 dark:bg-red-950/40 border border-red-200 text-red-700 text-sm rounded-xl p-4">{submitError}</div>
           )}
 
           <div className="flex gap-3 mt-7">
             <button
               onClick={() => setStep(2)}
-              className="flex items-center gap-1.5 px-5 py-3 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-50"
+              className="flex items-center gap-1.5 px-5 py-3 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-50 dark:bg-slate-800"
             >
               <ChevronLeft size={16} /> Back
             </button>
             <button
               disabled={!canSubmit || submitting}
               onClick={submitBooking}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold px-6 py-3 rounded-xl transition"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 dark:text-slate-500 text-white font-bold px-6 py-3 rounded-xl transition"
             >
               <CalendarCheck size={16} /> {submitting ? "Booking..." : "Confirm booking"}
             </button>
@@ -1503,9 +1513,9 @@ function AdminLogin({ onLoggedIn }) {
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center px-5">
-      <form onSubmit={submit} className="w-full max-w-sm bg-white rounded-2xl p-7 shadow-xl">
-        <h1 className="text-xl font-black text-slate-900 mb-1">Owner Login</h1>
-        <p className="text-sm text-slate-500 mb-5">Manage your lesson availability and bookings.</p>
+      <form onSubmit={submit} className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl p-7 shadow-xl">
+        <h1 className="text-xl font-black text-slate-900 dark:text-white mb-1">Owner Login</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">Manage your lesson availability and bookings.</p>
         <div className="space-y-3">
           <input
             type="email"
@@ -1513,7 +1523,7 @@ function AdminLogin({ onLoggedIn }) {
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full border-2 border-slate-200 focus:border-emerald-500 outline-none rounded-xl px-4 py-3"
+            className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 outline-none rounded-xl px-4 py-3"
           />
           <input
             type="password"
@@ -1521,7 +1531,7 @@ function AdminLogin({ onLoggedIn }) {
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full border-2 border-slate-200 focus:border-emerald-500 outline-none rounded-xl px-4 py-3"
+            className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 outline-none rounded-xl px-4 py-3"
           />
         </div>
         {error && <p className="text-red-600 text-sm mt-3">{error}</p>}
@@ -1666,7 +1676,7 @@ function AdminDashboard({ onLogout }) {
   const upcomingOpenSlots = slots.filter(s => !s.is_booked);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-800">
       <div className="bg-slate-900 text-white px-5 sm:px-8 py-6 flex items-center justify-between">
         <div>
           <p className="text-xs uppercase tracking-widest text-emerald-400 font-bold">Owner Dashboard</p>
@@ -1683,13 +1693,13 @@ function AdminDashboard({ onLogout }) {
       <div className="max-w-4xl mx-auto px-5 sm:px-8 py-8 space-y-10">
         {/* Pause / resume bookings */}
         <section>
-          <div className={`rounded-2xl p-5 border-2 ${bookingPaused ? "bg-amber-50 border-amber-300" : "bg-emerald-50 border-emerald-300"}`}>
+          <div className={`rounded-2xl p-5 border-2 ${bookingPaused ? "bg-amber-50 dark:bg-amber-950/40 border-amber-300" : "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300"}`}>
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
-                <p className={`text-xs font-black uppercase tracking-widest ${bookingPaused ? "text-amber-700" : "text-emerald-700"}`}>
+                <p className={`text-xs font-black uppercase tracking-widest ${bookingPaused ? "text-amber-700" : "text-emerald-700 dark:text-emerald-400"}`}>
                   {bookingPaused ? "Bookings are PAUSED" : "Bookings are OPEN"}
                 </p>
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
                   {bookingPaused
                     ? "Customers see the message below instead of a booking form."
                     : "Customers can see and book any open slots normally."}
@@ -1701,24 +1711,24 @@ function AdminDashboard({ onLogout }) {
                 className={`font-bold px-5 py-2.5 rounded-xl transition shrink-0 ${
                   bookingPaused
                     ? "bg-emerald-600 hover:bg-emerald-500 text-white"
-                    : "bg-amber-500 hover:bg-amber-400 text-slate-900"
+                    : "bg-amber-500 hover:bg-amber-400 text-slate-900 dark:text-white"
                 }`}
               >
                 {savingPause ? "Saving..." : bookingPaused ? "Resume bookings" : "Pause bookings"}
               </button>
             </div>
             {pauseError && (
-              <div className="mt-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3">
+              <div className="mt-3 bg-red-50 dark:bg-red-950/40 border border-red-200 text-red-700 text-sm rounded-xl p-3">
                 <b>Couldn't save:</b> {pauseError}
               </div>
             )}
             <div className="mt-4">
-              <label className="text-xs font-bold text-slate-500 block mb-1">Message shown to customers while paused</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Message shown to customers while paused</label>
               <textarea
                 value={pausedMessage}
                 onChange={e => setPausedMessage(e.target.value)}
                 rows={3}
-                className="w-full border-2 border-slate-200 focus:border-emerald-500 outline-none rounded-xl px-3 py-2 text-sm"
+                className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 outline-none rounded-xl px-3 py-2 text-sm"
               />
               <div className="flex items-center gap-3 mt-2">
                 <button
@@ -1729,7 +1739,7 @@ function AdminDashboard({ onLogout }) {
                   {messageSaveStatus === "saving" ? "Saving..." : "Save message"}
                 </button>
                 {messageSaveStatus === "saved" && (
-                  <span className="text-emerald-700 text-sm font-semibold">Saved ✓</span>
+                  <span className="text-emerald-700 dark:text-emerald-400 text-sm font-semibold">Saved ✓</span>
                 )}
                 {messageSaveStatus === "error" && (
                   <span className="text-red-600 text-sm font-semibold">Couldn't save — try again</span>
@@ -1741,47 +1751,47 @@ function AdminDashboard({ onLogout }) {
 
         {/* Add availability */}
         <section>
-          <h2 className="text-lg font-black text-slate-900 mb-3">Open up new lesson times</h2>
-          <form onSubmit={addBulkSlots} className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-wrap items-end gap-4">
+          <h2 className="text-lg font-black text-slate-900 dark:text-white mb-3">Open up new lesson times</h2>
+          <form onSubmit={addBulkSlots} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex flex-wrap items-end gap-4">
             <div>
-              <label className="text-xs font-bold text-slate-500 block mb-1">Date</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Date</label>
               <input type="date" required value={newDate} onChange={e => setNewDate(e.target.value)}
-                className="border-2 border-slate-200 rounded-lg px-3 py-2" />
+                className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2" />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-500 block mb-1">Start time</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Start time</label>
               <input type="time" value={bulkStart} onChange={e => setBulkStart(e.target.value)}
-                className="border-2 border-slate-200 rounded-lg px-3 py-2" />
+                className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2" />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-500 block mb-1">End time</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">End time</label>
               <input type="time" value={bulkEnd} onChange={e => setBulkEnd(e.target.value)}
-                className="border-2 border-slate-200 rounded-lg px-3 py-2" />
+                className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2" />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-500 block mb-1">Slot length (mins)</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Slot length (mins)</label>
               <input type="number" min="10" step="5" value={bulkLength} onChange={e => setBulkLength(e.target.value)}
-                className="border-2 border-slate-200 rounded-lg px-3 py-2 w-24" />
+                className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 w-24" />
             </div>
             <button type="submit" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-lg">
               Add slots
             </button>
           </form>
-          {message && <p className="text-sm text-emerald-700 mt-2">{message}</p>}
-          <p className="text-xs text-slate-400 mt-2">
+          {message && <p className="text-sm text-emerald-700 dark:text-emerald-400 mt-2">{message}</p>}
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
             Example: 09:00 to 17:00 in 40-minute slots creates a full day of lesson times in one click.
           </p>
         </section>
 
         {/* Open slots list */}
         <section>
-          <h2 className="text-lg font-black text-slate-900 mb-3">Open slots ({upcomingOpenSlots.length})</h2>
-          {loading ? <p className="text-slate-400 text-sm">Loading...</p> : (
-            <div className="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100 max-h-80 overflow-y-auto">
-              {upcomingOpenSlots.length === 0 && <p className="p-4 text-sm text-slate-400">No open slots yet — add some above.</p>}
+          <h2 className="text-lg font-black text-slate-900 dark:text-white mb-3">Open slots ({upcomingOpenSlots.length})</h2>
+          {loading ? <p className="text-slate-400 dark:text-slate-500 text-sm">Loading...</p> : (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl divide-y divide-slate-100 max-h-80 overflow-y-auto">
+              {upcomingOpenSlots.length === 0 && <p className="p-4 text-sm text-slate-400 dark:text-slate-500">No open slots yet — add some above.</p>}
               {upcomingOpenSlots.map(s => (
                 <div key={s.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
-                  <span className="font-semibold text-slate-700">{formatDateStr(s.slot_date)} &middot; {formatTimeStr(s.slot_time)}</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">{formatDateStr(s.slot_date)} &middot; {formatTimeStr(s.slot_time)}</span>
                   <button onClick={() => removeSlot(s.id)} className="text-red-600 text-xs font-bold hover:underline">Remove</button>
                 </div>
               ))}
@@ -1791,23 +1801,23 @@ function AdminDashboard({ onLogout }) {
 
         {/* Bookings list */}
         <section>
-          <h2 className="text-lg font-black text-slate-900 mb-3">Bookings ({bookings.length})</h2>
-          {loading ? <p className="text-slate-400 text-sm">Loading...</p> : (
+          <h2 className="text-lg font-black text-slate-900 dark:text-white mb-3">Bookings ({bookings.length})</h2>
+          {loading ? <p className="text-slate-400 dark:text-slate-500 text-sm">Loading...</p> : (
             <div className="space-y-3">
-              {bookings.length === 0 && <p className="text-sm text-slate-400">No bookings yet.</p>}
+              {bookings.length === 0 && <p className="text-sm text-slate-400 dark:text-slate-500">No bookings yet.</p>}
               {bookings.map(b => {
                 const icsUrl = buildBookingIcsDataUrl(b);
                 return (
-                  <div key={b.id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-4">
+                  <div key={b.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex items-center justify-between gap-4">
                     <div>
-                      <p className="font-bold text-slate-900">{b.full_name} &middot; {LESSON_TYPES.find(l => l.id === b.lesson_type)?.label || b.lesson_type}</p>
-                      <p className="text-sm text-slate-500">
+                      <p className="font-bold text-slate-900 dark:text-white">{b.full_name} &middot; {LESSON_TYPES.find(l => l.id === b.lesson_type)?.label || b.lesson_type}</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
                         {b.slots ? `${formatDateStr(b.slots.slot_date)} at ${formatTimeStr(b.slots.slot_time)}` : "Time slot removed"}
                       </p>
-                      <p className="text-xs text-slate-400 mt-1 flex flex-wrap gap-x-1">
-                        <a href={`mailto:${b.email}`} className="text-emerald-700 hover:underline">{b.email}</a>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex flex-wrap gap-x-1">
+                        <a href={`mailto:${b.email}`} className="text-emerald-700 dark:text-emerald-400 hover:underline">{b.email}</a>
                         <span>&middot;</span>
-                        <a href={`tel:${b.phone}`} className="text-emerald-700 hover:underline">{b.phone}</a>
+                        <a href={`tel:${b.phone}`} className="text-emerald-700 dark:text-emerald-400 hover:underline">{b.phone}</a>
                       </p>
                     </div>
                     <div className="flex flex-col gap-2 shrink-0">
@@ -1815,12 +1825,12 @@ function AdminDashboard({ onLogout }) {
                         <a
                           href={icsUrl}
                           download={`lesson-${b.full_name.replace(/\s+/g, "-")}.ics`}
-                          className="text-emerald-700 text-xs font-bold border border-emerald-200 rounded-lg px-3 py-2 hover:bg-emerald-50 text-center"
+                          className="text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-200 rounded-lg px-3 py-2 hover:bg-emerald-50 dark:bg-emerald-950/40 text-center"
                         >
                           Add to Calendar
                         </a>
                       )}
-                      <button onClick={() => cancelBooking(b)} className="text-red-600 text-xs font-bold border border-red-200 rounded-lg px-3 py-2 hover:bg-red-50">
+                      <button onClick={() => cancelBooking(b)} className="text-red-600 text-xs font-bold border border-red-200 rounded-lg px-3 py-2 hover:bg-red-50 dark:bg-red-950/40">
                         Cancel
                       </button>
                     </div>
@@ -2275,7 +2285,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
           <>
             <Star size={28} className="text-amber-400 mx-auto mb-3" />
             <p className="font-bold">No bookmarks yet</p>
-            <p className="text-slate-400 text-sm mt-1">
+            <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
               Tap the star on any card to save it here for review.
             </p>
             <button
@@ -2286,7 +2296,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
             </button>
           </>
         ) : (
-          <p className="text-slate-400">No cards in this category.</p>
+          <p className="text-slate-400 dark:text-slate-500">No cards in this category.</p>
         )}
       </div>
     );
@@ -2299,7 +2309,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
         <div className="max-w-3xl mx-auto">
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 mb-3"
+            className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-emerald-400 mb-3"
           >
             <ChevronLeft size={14} /> {backLabel || "Back to Flashcards"}
           </button>
@@ -2307,11 +2317,11 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
             <h1 className="font-black uppercase tracking-tight text-2xl sm:text-3xl text-emerald-400">
               {deckTitle}
             </h1>
-            <span className="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-widest">
+            <span className="text-xs sm:text-sm font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest">
               {deckSubtitle}
             </span>
           </div>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
             {cards.length} cards &middot; {categories.filter(x => cards.some(k => k.c === x.id)).length} categories &middot; {knownCount}/{total} known in this set
           </p>
         </div>
@@ -2323,14 +2333,14 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
           <button
             onClick={() => setActiveCat("all")}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide border transition
-              ${activeCat === "all" ? "bg-emerald-400 text-slate-900 border-emerald-400" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
+              ${activeCat === "all" ? "bg-emerald-400 text-slate-900 dark:text-white border-emerald-400" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
           >
             <ListFilter size={13} /> All ({cards.length})
           </button>
           <button
             onClick={() => setActiveCat("__bookmarks")}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide border transition
-              ${activeCat === "__bookmarks" ? "bg-amber-400 text-slate-900 border-amber-400" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
+              ${activeCat === "__bookmarks" ? "bg-amber-400 text-slate-900 dark:text-white border-amber-400" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
           >
             <Star size={13} fill={activeCat === "__bookmarks" ? "currentColor" : "none"} /> Bookmarks ({bookmarks.size})
           </button>
@@ -2342,7 +2352,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
                 key={c.id}
                 onClick={() => setActiveCat(c.id)}
                 className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide border transition
-                  ${active ? `${c.swatch} ${c.dark ? "text-slate-900" : "text-white"} border-transparent` : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
+                  ${active ? `${c.swatch} ${c.dark ? "text-slate-900 dark:text-white" : "text-white"} border-transparent` : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
               >
                 {c.label} ({count})
               </button>
@@ -2357,7 +2367,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
 
           {/* progress bar */}
           <div className="mb-5 flex items-center gap-3">
-            <span className="font-mono text-xs text-slate-500 w-16 shrink-0">
+            <span className="font-mono text-xs text-slate-500 dark:text-slate-400 w-16 shrink-0">
               {pos + 1} / {total}
             </span>
             <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
@@ -2396,11 +2406,11 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
                 style={{ backfaceVisibility: "hidden" }}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <span className={`font-mono text-xs px-2 py-1 rounded ${cat.swatch} ${cat.dark ? "text-slate-900" : "text-white"} font-bold`}>
+                  <span className={`font-mono text-xs px-2 py-1 rounded ${cat.swatch} ${cat.dark ? "text-slate-900 dark:text-white" : "text-white"} font-bold`}>
                     No. {String(card.no ?? card.id).padStart(3, "0")}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs uppercase tracking-widest text-slate-400 font-semibold text-right">
+                    <span className="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-500 font-semibold text-right">
                       {cat.label} &middot; {card.catIndex}
                     </span>
                     <button
@@ -2408,7 +2418,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
                       aria-label={bookmarks.has(card.id) ? "Remove bookmark" : "Bookmark this card"}
                       className={`p-1.5 rounded-lg border transition ${bookmarks.has(card.id)
                         ? "border-amber-400 bg-amber-400/15 text-amber-400"
-                        : "border-slate-600 text-slate-500 hover:text-slate-300"}`}
+                        : "border-slate-600 text-slate-500 dark:text-slate-400 hover:text-slate-300"}`}
                     >
                       <Star size={15} fill={bookmarks.has(card.id) ? "currentColor" : "none"} />
                     </button>
@@ -2416,7 +2426,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
                 </div>
                 <div className="flex-1 flex items-center justify-center">
                   {card.img ? (
-                    <div className="bg-white rounded-2xl px-5 py-4 shadow-inner flex items-center justify-center">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl px-5 py-4 shadow-inner flex items-center justify-center">
                       <img
                         src={card.img}
                         alt="Road sign"
@@ -2427,14 +2437,14 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
                     <p className="text-lg sm:text-xl font-semibold leading-snug">{card.q}</p>
                   )}
                 </div>
-                <p className="text-center text-xs text-slate-500 uppercase tracking-widest mt-4">
+                <p className="text-center text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-4">
                   {card.img ? "What is this sign?" : "Tap to reveal"} &middot; swipe to move
                 </p>
               </div>
 
               {/* back */}
               <div
-                className={`absolute inset-0 rounded-2xl border-4 ${cat.swatch.replace("bg-", "border-")} ${cat.swatch} p-6 sm:p-8 flex flex-col ${cat.dark ? "text-slate-900" : "text-white"}`}
+                className={`absolute inset-0 rounded-2xl border-4 ${cat.swatch.replace("bg-", "border-")} ${cat.swatch} p-6 sm:p-8 flex flex-col ${cat.dark ? "text-slate-900 dark:text-white" : "text-white"}`}
                 style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
               >
                 <div className="flex items-center justify-between mb-4">
@@ -2515,14 +2525,14 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
           </div>
 
           {review.size > 0 && (
-            <p className="text-center text-xs text-slate-500 mt-4">
+            <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
               {review.size} card{review.size === 1 ? "" : "s"} marked for review in this session.
             </p>
           )}
         </div>
       </main>
 
-      <footer className="text-center text-xs text-slate-600 py-4 px-4">
+      <footer className="text-center text-xs text-slate-600 dark:text-slate-300 py-4 px-4">
         Independent study aid based on Ireland's Rules of the Road (RSA). Not an official publication — always check www.rsa.ie for current rules.
       </footer>
     </div>
@@ -2534,7 +2544,7 @@ function FlashcardDeck({ onBack, cards, categories, catLookup, deckTitle, deckSu
    and a native-app-style bottom tab bar for mobile (this same structure
    maps directly onto a future iOS/Android wrapper).
    ========================================================================= */
-function TopNav({ view, go }) {
+function TopNav({ view, go, theme, toggleTheme }) {
   return (
     <header className="hidden sm:block sticky top-0 z-30 bg-slate-900 border-b border-slate-800">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -2555,32 +2565,50 @@ function TopNav({ view, go }) {
             </button>
           ))}
         </nav>
-        <button
-          onClick={() => go("booking")}
-          className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-sm px-4 py-2 rounded-lg transition"
-        >
-          <CalendarCheck size={16} /> Book a Lesson
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle dark mode"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button
+            onClick={() => go("booking")}
+            className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 dark:text-white font-bold text-sm px-4 py-2 rounded-lg transition"
+          >
+            <CalendarCheck size={16} /> Book a Lesson
+          </button>
+        </div>
       </div>
     </header>
   );
 }
 
-function MobileHeader({ view, go, menuOpen, setMenuOpen }) {
+function MobileHeader({ view, go, menuOpen, setMenuOpen, theme, toggleTheme }) {
   return (
     <header className="sm:hidden sticky top-0 z-30 bg-slate-900 border-b border-slate-800">
       <div className="px-4 h-14 flex items-center justify-between">
         <button onClick={() => go("home")}><Logo compact /></button>
         <span className="font-black tracking-tight text-white text-sm">
-          Pass<span className="text-emerald-400">DrivingTest</span><span className="text-slate-400">.ie</span>
+          Pass<span className="text-emerald-400">DrivingTest</span><span className="text-slate-400 dark:text-slate-500">.ie</span>
         </span>
-        <button
-          onClick={() => setMenuOpen(o => !o)}
-          className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 hover:bg-slate-800"
-          aria-label="Open menu"
-        >
-          {menuOpen ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle dark mode"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 hover:bg-slate-800"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 hover:bg-slate-800"
+            aria-label="Open menu"
+          >
+            {menuOpen ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
+          </button>
+        </div>
       </div>
 
       {menuOpen && (
@@ -2598,12 +2626,12 @@ function MobileHeader({ view, go, menuOpen, setMenuOpen }) {
             ))}
             <button
               onClick={() => { go("booking"); setMenuOpen(false); }}
-              className="mt-2 text-left px-3 py-2.5 rounded-lg text-sm font-bold bg-emerald-500 text-slate-900"
+              className="mt-2 text-left px-3 py-2.5 rounded-lg text-sm font-bold bg-emerald-500 text-slate-900 dark:text-white"
             >
               Book a Lesson
             </button>
           </nav>
-          <div className="mt-4 pt-4 border-t border-slate-800 text-slate-400 text-xs space-y-1.5">
+          <div className="mt-4 pt-4 border-t border-slate-800 text-slate-400 dark:text-slate-500 text-xs space-y-1.5">
             <div className="flex items-center gap-3">
               <a href={`tel:${SITE_CONFIG.phoneTel}`} className="flex items-center gap-2 hover:text-emerald-400"><Phone size={13} /> {SITE_CONFIG.phoneDisplay}</a>
               <WhatsAppLink size={15} />
@@ -2630,8 +2658,8 @@ function BottomTabBar({ view, go, onMore }) {
               onClick={handleClick}
               className="flex flex-col items-center justify-center gap-1 py-2.5"
             >
-              <t.icon size={20} className={active ? "text-emerald-400" : "text-slate-400"} strokeWidth={active ? 2.5 : 2} />
-              <span className={`text-xs font-semibold ${active ? "text-emerald-400" : "text-slate-400"}`}>{t.label}</span>
+              <t.icon size={20} className={active ? "text-emerald-400" : "text-slate-400 dark:text-slate-500"} strokeWidth={active ? 2.5 : 2} />
+              <span className={`text-xs font-semibold ${active ? "text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>{t.label}</span>
             </button>
           );
         })}
@@ -2642,7 +2670,7 @@ function BottomTabBar({ view, go, onMore }) {
 
 function SiteFooter() {
   return (
-    <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 pb-20 sm:pb-8">
+    <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 dark:text-slate-500 pb-20 sm:pb-8">
       <div className="max-w-6xl mx-auto px-6 py-10 grid sm:grid-cols-3 gap-8">
         <div>
           <Logo />
@@ -2668,7 +2696,7 @@ function SiteFooter() {
           <p>RSA Flashcards</p>
         </div>
       </div>
-      <div className="max-w-6xl mx-auto px-6 pb-8 text-xs text-slate-500 border-t border-slate-800 pt-6">
+      <div className="max-w-6xl mx-auto px-6 pb-8 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-800 pt-6">
         PassDrivingTest.ie is an independent driving-school resource. Rules of the Road content is
         rewritten from the Road Safety Authority (RSA) of Ireland's official material and is not an
         official RSA publication — always check www.rsa.ie for the current rules.
@@ -2709,6 +2737,18 @@ export default function App() {
   const [view, setView] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
   const [isAdminRoute, setIsAdminRoute] = useState(() => window.location.hash === "#admin");
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem("theme") || "light"; } catch (e) { return "light"; }
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    try { localStorage.setItem("theme", theme); } catch (e) {}
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(t => (t === "dark" ? "light" : "dark"));
+  }, []);
 
   useEffect(() => {
     const onHashChange = () => setIsAdminRoute(window.location.hash === "#admin");
@@ -2809,9 +2849,9 @@ export default function App() {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col ${isFlashcardDeck ? "bg-slate-950" : "bg-white"}`}>
-      <TopNav view={view} go={go} />
-      <MobileHeader go={go} view={view} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+    <div className={`min-h-screen flex flex-col ${isFlashcardDeck ? "bg-slate-950" : "bg-white dark:bg-slate-950"}`}>
+      <TopNav view={view} go={go} theme={theme} toggleTheme={toggleTheme} />
+      <MobileHeader go={go} view={view} menuOpen={menuOpen} setMenuOpen={setMenuOpen} theme={theme} toggleTheme={toggleTheme} />
 
       <main className="flex-1">{content}</main>
 
