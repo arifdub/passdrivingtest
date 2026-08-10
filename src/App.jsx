@@ -1005,6 +1005,113 @@ function ADITestPage({ go }) {
           </button>
         ))}
       </div>
+
+      {/* How to become an ADI — resource section */}
+      <div className="mt-14 pt-10 border-t border-slate-200 dark:border-slate-700">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          How to Become an ADI in Ireland
+        </h2>
+        <p className="mt-2 text-slate-600 dark:text-slate-300 max-w-2xl">
+          A plain-English overview of the path to becoming an RSA Approved Driving Instructor —
+          the requirements, the three exam stages, and where existing qualifications can help.
+        </p>
+
+        <h3 className="mt-8 font-bold text-slate-900 dark:text-white">Before you apply</h3>
+        <p className="mt-1 text-slate-600 dark:text-slate-300 text-sm max-w-2xl">
+          The Road Safety Authority (RSA) is the body that regulates driving instruction in Ireland.
+          Before anything else, the RSA needs to be satisfied that you're a person of good character.
+          Beyond that, you'll generally need to:
+        </p>
+        <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300 max-w-2xl">
+          {[
+            "Be tax compliant, with a current tax clearance certificate",
+            "Hold a full driving licence for the category you want to teach, for at least 2 years",
+            "Go through Garda vetting",
+            "Later on, pass periodic check tests to keep demonstrating your ability to instruct",
+          ].map(t => (
+            <li key={t} className="flex items-start gap-2">
+              <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+              <span>{t}</span>
+            </li>
+          ))}
+        </ul>
+
+        <h3 className="mt-8 font-bold text-slate-900 dark:text-white">The three exam stages</h3>
+        <div className="mt-3 space-y-4">
+          {[
+            {
+              n: "1",
+              title: "Theory test",
+              body: "Sat locally at one of the RSA's test centres nationwide — pick whichever is most convenient. Once you're issued an eligibility number by the ADI unit, you book your appointment through the online booking page or the booking line.",
+            },
+            {
+              n: "2",
+              title: "Practical driving test",
+              body: "A longer, more demanding test than an ordinary learner driving test — 60 to 100 minutes depending on the vehicle category, covering roughly 25–30km. The examiner gives you a result and feedback afterward, and you must pass this stage before moving on to Stage 3.",
+            },
+            {
+              n: "3",
+              title: "Instructional ability test",
+              body: "Assesses how well you can actually teach. It runs in two 30-minute phases: Phase 1 covers instructing a complete beginner on a given topic, and Phase 2 covers instructing a learner who's already close to test standard. Results are typically issued within 10 working days.",
+            },
+          ].map(s => (
+            <div key={s.n} className="flex gap-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
+              <div className="w-9 h-9 rounded-full bg-slate-900 dark:bg-emerald-600 text-white flex items-center justify-center font-black shrink-0">
+                {s.n}
+              </div>
+              <div>
+                <p className="font-bold text-slate-900 dark:text-white">{s.title}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">{s.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <h3 className="mt-8 font-bold text-slate-900 dark:text-white">Already have a relevant qualification?</h3>
+        <p className="mt-1 text-slate-600 dark:text-slate-300 text-sm max-w-2xl">
+          If you already hold a qualification that meets the RSA's ADI standard, you may not need to sit
+          every stage again — the RSA verifies this case by case, and depending on what you hold, you
+          could be exempt from one or all of the exam stages. A fee applies at each stage of the process,
+          including any repeat attempt after a section fail.
+        </p>
+
+        <h3 className="mt-8 font-bold text-slate-900 dark:text-white">FETAC / QQI recognition</h3>
+        <p className="mt-1 text-slate-600 dark:text-slate-300 text-sm max-w-2xl">
+          The RSA worked with FETAC (now part of QQI, the national further-education awarding body) to
+          define the skills and standards behind the ADI qualification. Passing all three stages doesn't
+          just qualify you to work as an ADI — it also carries a recognised Level 6 Special Purpose Award,
+          in whichever category you qualify for:
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {[
+            "Car Driving Instruction",
+            "Motorcycle Driving Instruction",
+            "Goods Vehicle Driving Instruction",
+            "Passenger Vehicle Driving Instruction",
+            "Articulated Vehicle Driving Instruction",
+          ].map(t => (
+            <span key={t} className="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+              {t}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-8 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-2xl p-5 text-sm text-slate-700 dark:text-slate-200">
+          <p>
+            Fees, eligibility numbers, and test centre details can change, so always confirm the current
+            requirements directly with the RSA before applying.
+          </p>
+          <p className="mt-2 font-semibold">
+            RSA ADI Unit, Road Safety Authority, Primrose Hill, Dublin Road, Ballina, Co. Mayo — 096 25007
+          </p>
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+            Summarised from{" "}
+            <a href="https://www.drivingschoolsupplies.ie/how_to_become_a_driving_instructor.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-700 dark:hover:text-blue-300">
+              Driving School Supplies — Want to Become a Driving Instructor
+            </a>. For the official, up-to-date process, see the RSA's own ADI section.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
