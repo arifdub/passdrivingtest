@@ -10,6 +10,7 @@ import {
   ChevronRight, ChevronLeft, Shuffle, Check, Undo2, ListFilter, ArrowRight,
   GraduationCap, Car, ShieldCheck, Layers, CheckCircle2, Star, Phone, Mail,
   MapPin, Clock, Sparkles, Lock, PlayCircle, X as XIcon, Sun, Moon,
+  Settings as SettingsIcon, Download, Smartphone, Share2, Info,
 } from "lucide-react";
 
 /* =========================================================================
@@ -36,7 +37,7 @@ const PRIMARY_NAV = [
 const TAB_BAR = [
   { id: "home", label: "Home", icon: HomeIcon },
   { id: "learning", label: "Learn", icon: BookOpen },
-  { id: "booking", label: "Book", icon: CalendarCheck },
+  { id: "settings", label: "Settings", icon: SettingsIcon },
   { id: "more", label: "More", icon: MenuIcon },
 ];
 
@@ -44,7 +45,7 @@ const LEARNING_GROUP = ["rules", "theory", "adi", "adi-quiz", "adi-theory-quiz",
 
 function isTabActive(tabId, view) {
   if (tabId === "learning") return LEARNING_GROUP.includes(view);
-  if (tabId === "booking") return view === "booking";
+  if (tabId === "settings") return view === "settings";
   if (tabId === "home") return view === "home";
   return false;
 }
@@ -93,11 +94,34 @@ function ComingSoonBanner({ text }) {
    HOME PAGE
    ========================================================================= */
 function HomePage({ go }) {
-  const quickLinks = [
-    { id: "rules", label: "Rules of the Road", desc: "Ireland's official rules, explained clearly.", icon: ShieldCheck, tone: "bg-slate-900" },
-    { id: "theory", label: "Theory & Driving Test", desc: "Prep for your learner theory test and full driving test.", icon: BookOpen, tone: "bg-slate-900" },
-    { id: "adi", label: "Approved Driving Instructor", desc: "ADI Stage 1 mock test, theory practice and flashcards.", icon: GraduationCap, tone: "bg-slate-900" },
-    { id: "booking", label: "Book a Lesson", desc: "Reserve your driving lesson online.", icon: CalendarCheck, tone: "bg-emerald-600" },
+  const sections = [
+    {
+      id: "adi",
+      label: "Approved Driving Instructor",
+      icon: GraduationCap,
+      tone: "bg-slate-900",
+      blurb:
+        "Thinking about becoming an ADI, or already training? Get the full picture of the three-stage RSA exam — the theory test, the practical driving test, and the instructional ability test — plus 151 mock questions, 126 more theory practice questions, and 62 quick-recall flashcards to prepare with.",
+      cta: "Explore ADI prep",
+    },
+    {
+      id: "theory",
+      label: "Theory & Driving Test",
+      icon: BookOpen,
+      tone: "bg-emerald-600",
+      blurb:
+        "Getting ready for your learner theory test or your full driving test? This section walks through what each test actually involves, with mock tests and topic-by-topic practice so you know exactly what to expect on the day, not just what to memorise.",
+      cta: "Start theory prep",
+    },
+    {
+      id: "rules",
+      label: "Rules of the Road",
+      icon: ShieldCheck,
+      tone: "bg-amber-500",
+      blurb:
+        "Ireland's official Rules of the Road, rewritten in plain English — speed limits, junctions, motorways, penalty points and more — plus two dedicated flashcard decks: 153 rules Q&A cards and a full road sign recognition deck.",
+      cta: "Study the rules",
+    },
   ];
 
   return (
@@ -110,134 +134,74 @@ function HomePage({ go }) {
             Study smart.<br />Pass first time.
           </h1>
           <p className="mt-4 text-slate-300 text-base sm:text-lg max-w-xl">
-            Everything you need to prepare for your theory test, driving test, or ADI
-            exam — plus a fast way to book your driving lesson online.
+            Everything you need to prepare for your theory test, driving test, or ADI exam —
+            in one place.
           </p>
           <div className="mt-7 flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => go("booking")}
+              onClick={() => go("flashcards-hub")}
               className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 dark:text-white font-bold px-6 py-3 rounded-xl transition"
-            >
-              <CalendarCheck size={18} /> Book a Lesson
-            </button>
-            <button
-              onClick={() => go("flashcards-deck")}
-              className="inline-flex items-center justify-center gap-2 bg-transparent border border-slate-600 hover:border-emerald-400 hover:text-emerald-400 text-white font-bold px-6 py-3 rounded-xl transition"
             >
               <PlayCircle size={18} /> Start Flashcards
             </button>
+            <button
+              onClick={() => go("learning")}
+              className="inline-flex items-center justify-center gap-2 bg-transparent border border-slate-600 hover:border-emerald-400 hover:text-emerald-400 text-white font-bold px-6 py-3 rounded-xl transition"
+            >
+              Browse Learning Materials
+            </button>
           </div>
         </div>
       </section>
 
-      {/* Quick links */}
-      <section className="max-w-5xl mx-auto px-5 sm:px-8 -mt-8 sm:-mt-10 relative z-10">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          {quickLinks.map(q => (
-            <button
-              key={q.id}
-              onClick={() => go(q.id)}
-              className="text-left bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-slate-900/10 border border-slate-100 p-4 sm:p-5 hover:-translate-y-0.5 hover:shadow-xl transition"
-            >
-              <div className={`w-9 h-9 rounded-lg ${q.tone} flex items-center justify-center mb-3`}>
-                <q.icon size={18} className="text-white" />
+      {/* Three main learning sections */}
+      <section className="max-w-4xl mx-auto px-5 sm:px-8 -mt-8 sm:-mt-10 relative z-10 space-y-5">
+        {sections.map(s => (
+          <button
+            key={s.id}
+            onClick={() => go(s.id)}
+            className="w-full text-left bg-white dark:bg-slate-900 rounded-3xl shadow-lg shadow-slate-900/10 border border-slate-100 dark:border-slate-700 p-6 sm:p-8 hover:-translate-y-0.5 hover:shadow-xl transition"
+          >
+            <div className="flex items-start gap-4">
+              <div className={`w-12 h-12 rounded-2xl ${s.tone} flex items-center justify-center shrink-0`}>
+                <s.icon size={22} className="text-white" />
               </div>
-              <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug">{q.label}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 hidden sm:block">{q.desc}</p>
-            </button>
-          ))}
-        </div>
+              <div className="flex-1">
+                <h2 className="font-black text-slate-900 dark:text-white text-xl sm:text-2xl tracking-tight">{s.label}</h2>
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">{s.blurb}</p>
+                <span className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-emerald-700 dark:text-emerald-400">
+                  {s.cta} <ArrowRight size={15} />
+                </span>
+              </div>
+            </div>
+          </button>
+        ))}
       </section>
 
       {/* Trust strip */}
-      <section className="max-w-5xl mx-auto px-5 sm:px-8 mt-10 sm:mt-14">
+      <section className="max-w-5xl mx-auto px-5 sm:px-8 mt-12 sm:mt-16">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">153</p>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">153+</p>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Flashcards ready now</p>
           </div>
           <div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">20</p>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Topic categories</p>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">277</p>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Practice questions</p>
           </div>
           <div>
             <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">3</p>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Lesson options available</p>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Core learning sections</p>
           </div>
         </div>
       </section>
 
-      {/* Learning Materials + Flashcards feature */}
-      <section className="max-w-5xl mx-auto px-5 sm:px-8 mt-12 sm:mt-16">
-        <SectionEyebrow tone="amber">Learning Materials</SectionEyebrow>
-        <h2 className="mt-3 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          Study with flashcards
-        </h2>
-        <p className="mt-2 text-slate-600 dark:text-slate-300 max-w-2xl">
-          Bite-sized question-and-answer cards you can flip, swipe and shuffle through —
-          built to make the Rules of the Road actually stick.
-        </p>
-
-        <div className="mt-6 bg-slate-900 rounded-3xl p-5 sm:p-8 relative overflow-hidden">
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-6">
-            <div className="flex-1">
-              <span className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-400 text-slate-900 dark:text-white">
-                Available now
-              </span>
-              <h3 className="mt-3 text-xl sm:text-2xl font-black text-white">
-                RSA Flashcards: Rules of the Road
-              </h3>
-              <p className="mt-2 text-slate-400 dark:text-slate-500 text-sm sm:text-base max-w-md">
-                153 cards across 20 categories — licences, speed limits, junctions,
-                signs, motorways, cyclists, pedestrians and more.
-              </p>
-              <button
-                onClick={() => go("flashcards-deck")}
-                className="mt-5 inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-slate-900 dark:text-white font-bold px-5 py-2.5 rounded-xl transition"
-              >
-                Start studying <ArrowRight size={16} />
-              </button>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              {["Signs", "Speed", "Junctions"].map((tag, i) => (
-                <div
-                  key={tag}
-                  className="w-20 h-28 sm:w-24 sm:h-32 rounded-xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-center px-2"
-                  style={{ transform: `rotate(${(i - 1) * 6}deg)` }}
-                >
-                  <span className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wide">{tag}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={() => go("learning")}
-          className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:text-emerald-400"
-        >
-          Browse all learning materials <ChevronRight size={16} />
-        </button>
-      </section>
-
-      {/* CTA strip */}
-      <section className="max-w-5xl mx-auto px-5 sm:px-8 mt-14 sm:mt-20 mb-16">
-        <div className="bg-emerald-600 rounded-3xl p-6 sm:p-10 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-          <div>
-            <h3 className="text-xl sm:text-2xl font-black">Ready for your next lesson?</h3>
-            <p className="text-emerald-100 mt-1 text-sm sm:text-base">Pick a lesson, date and time in a couple of taps.</p>
-          </div>
-          <button
-            onClick={() => go("booking")}
-            className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 font-bold px-6 py-3 rounded-xl hover:bg-emerald-50 dark:bg-emerald-950/40 transition shrink-0"
-          >
-            <CalendarCheck size={18} /> Book a Lesson Appointment
-          </button>
-        </div>
-      </section>
+      <div className="h-14 sm:h-20" />
     </div>
   );
 }
+
+
 
 /* =========================================================================
    LEARNING MATERIALS HUB
@@ -2680,10 +2644,11 @@ function TopNav({ view, go, theme, toggleTheme }) {
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           <button
-            onClick={() => go("booking")}
-            className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 dark:text-white font-bold text-sm px-4 py-2 rounded-lg transition"
+            onClick={() => go("settings")}
+            aria-label="Settings"
+            className={`w-9 h-9 flex items-center justify-center rounded-lg transition ${view === "settings" ? "bg-slate-800 text-white" : "text-slate-300 hover:text-white hover:bg-slate-800/60"}`}
           >
-            <CalendarCheck size={16} /> Book a Lesson
+            <SettingsIcon size={18} />
           </button>
         </div>
       </div>
@@ -2731,10 +2696,11 @@ function MobileHeader({ view, go, menuOpen, setMenuOpen, theme, toggleTheme }) {
               </button>
             ))}
             <button
-              onClick={() => { go("booking"); setMenuOpen(false); }}
-              className="mt-2 text-left px-3 py-2.5 rounded-lg text-sm font-bold bg-emerald-500 text-slate-900 dark:text-white"
+              onClick={() => { go("settings"); setMenuOpen(false); }}
+              className={`text-left px-3 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2
+                ${view === "settings" ? "bg-slate-800 text-white" : "text-slate-300 hover:bg-slate-800/60"}`}
             >
-              Book a Lesson
+              <SettingsIcon size={15} /> Settings
             </button>
           </nav>
           <div className="mt-4 pt-4 border-t border-slate-800 text-slate-400 dark:text-slate-500 text-xs space-y-1.5">
@@ -2744,6 +2710,12 @@ function MobileHeader({ view, go, menuOpen, setMenuOpen, theme, toggleTheme }) {
             </div>
             <a href={`mailto:${SITE_CONFIG.email}`} className="flex items-center gap-2 hover:text-emerald-400"><Mail size={13} /> {SITE_CONFIG.email}</a>
             <p className="flex items-center gap-2"><MapPin size={13} /> {SITE_CONFIG.address}</p>
+            <button
+              onClick={() => { go("booking"); setMenuOpen(false); }}
+              className="pt-1.5 underline underline-offset-2 hover:text-slate-300"
+            >
+              Lesson booking
+            </button>
           </div>
         </div>
       )}
@@ -2837,8 +2809,91 @@ function WhatsAppLink({ size = 16, className = "" }) {
 }
 
 /* =========================================================================
-   ROOT APP
+   SETTINGS
    ========================================================================= */
+function SettingsPage({ go, theme, toggleTheme, isInstalled, isIOS, canPromptInstall, promptInstall }) {
+  return (
+    <div className="max-w-2xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
+      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Settings</h1>
+      <p className="mt-2 text-slate-600 dark:text-slate-300">App preferences and installation.</p>
+
+      {/* Install app */}
+      <div className="mt-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 sm:p-6">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-emerald-600 flex items-center justify-center shrink-0">
+            <Smartphone size={18} className="text-white" />
+          </div>
+          <h2 className="font-bold text-lg text-slate-900 dark:text-white">Install this app</h2>
+        </div>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+          Add PassDrivingTest.ie to your home screen for a full-screen app experience — no app store needed.
+        </p>
+
+        {isInstalled ? (
+          <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-bold text-sm rounded-xl px-4 py-3">
+            <CheckCircle2 size={18} /> Already installed on this device
+          </div>
+        ) : canPromptInstall ? (
+          <button
+            onClick={promptInstall}
+            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-3 rounded-xl transition"
+          >
+            <Download size={16} /> Install App
+          </button>
+        ) : isIOS ? (
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-200">
+            <p className="font-bold flex items-center gap-1.5"><Share2 size={15} /> On iPhone / iPad:</p>
+            <ol className="mt-2 space-y-1 list-decimal list-inside">
+              <li>Tap the <b>Share</b> button in Safari's toolbar</li>
+              <li>Scroll down and tap <b>Add to Home Screen</b></li>
+              <li>Tap <b>Add</b> — the app icon appears on your home screen</li>
+            </ol>
+            <p className="mt-3 text-xs text-slate-500 dark:text-slate-400 flex items-start gap-1.5">
+              <Info size={13} className="mt-0.5 shrink-0" />
+              Apple doesn't allow a one-tap install button in Safari, so this one extra step is required on iPhone.
+            </p>
+          </div>
+        ) : (
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300">
+            Open this site in Chrome and look for <b>Install app</b> in the browser menu (⋮). If you've already
+            dismissed the install prompt, refresh the page and try again.
+          </div>
+        )}
+      </div>
+
+      {/* Appearance */}
+      <div className="mt-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 sm:p-6">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-emerald-600 flex items-center justify-center shrink-0">
+              {theme === "dark" ? <Moon size={18} className="text-white" /> : <Sun size={18} className="text-white" />}
+            </div>
+            <div>
+              <p className="font-bold text-slate-900 dark:text-white">Appearance</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{theme === "dark" ? "Dark theme" : "Light theme"}</p>
+            </div>
+          </div>
+          <button
+            onClick={toggleTheme}
+            className="shrink-0 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-sm px-4 py-2.5 rounded-xl transition"
+          >
+            Switch to {theme === "dark" ? "Light" : "Dark"}
+          </button>
+        </div>
+      </div>
+
+      {/* Low-key link to booking — not advertised elsewhere right now */}
+      <button
+        onClick={() => go("booking")}
+        className="mt-8 text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 underline underline-offset-2"
+      >
+        Lesson booking
+      </button>
+    </div>
+  );
+}
+
+
 export default function App() {
   const [view, setView] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -2856,6 +2911,32 @@ export default function App() {
     setTheme(t => (t === "dark" ? "light" : "dark"));
   }, []);
 
+  // --- PWA install support ---
+  const [installPromptEvent, setInstallPromptEvent] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(
+    () => window.matchMedia && window.matchMedia("(display-mode: standalone)").matches
+  );
+  const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+
+  useEffect(() => {
+    const onPrompt = (e) => { e.preventDefault(); setInstallPromptEvent(e); };
+    const onInstalled = () => { setIsInstalled(true); setInstallPromptEvent(null); };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  const promptInstall = useCallback(async () => {
+    if (!installPromptEvent) return;
+    installPromptEvent.prompt();
+    const { outcome } = await installPromptEvent.userChoice;
+    if (outcome === "accepted") setIsInstalled(true);
+    setInstallPromptEvent(null);
+  }, [installPromptEvent]);
+
   useEffect(() => {
     const onHashChange = () => setIsAdminRoute(window.location.hash === "#admin");
     window.addEventListener("hashchange", onHashChange);
@@ -2871,6 +2952,19 @@ export default function App() {
   let content;
   if (view === "home") content = <HomePage go={go} />;
   else if (view === "learning") content = <LearningMaterialsHub go={go} />;
+  else if (view === "settings") {
+    content = (
+      <SettingsPage
+        go={go}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        isInstalled={isInstalled}
+        isIOS={isIOS}
+        canPromptInstall={!!installPromptEvent}
+        promptInstall={promptInstall}
+      />
+    );
+  }
   else if (view === "rules") content = <RulesOfRoadPage go={go} />;
   else if (view === "theory") content = <TheoryTestPage go={go} />;
   else if (view === "adi") content = <ADITestPage go={go} />;
