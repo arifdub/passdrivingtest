@@ -8,7 +8,8 @@
 */
 
 import React, { useState } from "react";
-import { CheckCircle2, Loader2, Mail, Lock, User as UserIcon, AlertCircle, ArrowRight } from "lucide-react";
+import { Loader2, Mail, Lock, User as UserIcon, AlertCircle, ArrowRight } from "lucide-react";
+import { Logo } from "./ui";
 import { useAuth } from "./appAuth";
 
 export default function AuthScreen() {
@@ -79,16 +80,7 @@ export default function AuthScreen() {
       }}
     >
       {/* Logo */}
-      <div className="flex items-center gap-2.5 mb-2">
-        <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center">
-          <CheckCircle2 size={24} className="text-white" strokeWidth={2.5} />
-        </div>
-        <span className="font-black tracking-tight text-2xl text-white leading-none">
-          Pass<span className="text-emerald-400">DrivingTest</span>
-          <span className="text-slate-500">.ie</span>
-        </span>
-      </div>
-      <p className="text-slate-400 text-sm mb-8">Learn. Practice. Pass.</p>
+      <Logo size="lg" className="mb-8" />
 
       {/* Card */}
       <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl">

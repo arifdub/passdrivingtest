@@ -33,8 +33,8 @@ export const PASS_MARKS = {
 export const APP_PATHS = [
   {
     id: "driving",
-    label: "Driving Test",
-    tagline: "Category B — theory & practical",
+    label: "Driving & Theory Test",
+    tagline: "Category B — car",
     blurb: "Everything for your theory test and your practical driving test.",
     accent: "emerald",
     sections: [
@@ -138,7 +138,7 @@ export const APP_PATHS = [
 
   {
     id: "adi",
-    label: "ADI",
+    label: "ADI Test",
     tagline: "Approved Driving Instructor",
     blurb: "All three stages of the RSA instructor qualification.",
     accent: "blue",

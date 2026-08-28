@@ -8,23 +8,25 @@
 */
 
 import React from "react";
-import { ChevronLeft, ChevronRight, Lock, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
 
 /* ------------------------------------------------------------------------- */
-export function Logo({ size = "md" }) {
-  const box = size === "sm" ? "w-8 h-8" : "w-10 h-10";
-  const icon = size === "sm" ? 18 : 22;
-  const text = size === "sm" ? "text-base" : "text-xl";
+/* The real logo, from public/logo.png. Sized by height so it keeps its
+   aspect ratio whatever the container width. */
+export function Logo({ size = "md", className = "" }) {
+  const heights = {
+    sm: "h-8",
+    md: "h-12",
+    lg: "h-20",
+    xl: "h-24",
+  };
   return (
-    <div className="flex items-center gap-2">
-      <div className={`${box} rounded-xl bg-emerald-500 flex items-center justify-center shrink-0`}>
-        <CheckCircle2 size={icon} className="text-white" strokeWidth={2.5} />
-      </div>
-      <span className={`font-black tracking-tight ${text} text-white leading-none`}>
-        Pass<span className="text-emerald-400">DrivingTest</span>
-        <span className="text-slate-500">.ie</span>
-      </span>
-    </div>
+    <img
+      src="/logo.png"
+      alt="PassDrivingTest.ie — Learn. Practice. Pass."
+      className={`${heights[size] || heights.md} w-auto ${className}`}
+      draggable={false}
+    />
   );
 }
 
@@ -109,9 +111,10 @@ export function ScreenHeader({ title, subtitle, onBack, backLabel = "Back", righ
             {onBack && (
               <button
                 onClick={onBack}
-                className="flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 mb-3"
+                className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 active:bg-white/25 rounded-xl pl-2 pr-3.5 py-2 mb-4 transition"
               >
-                <ChevronLeft size={14} /> {backLabel}
+                <ChevronLeft size={20} className="text-emerald-400" strokeWidth={2.5} />
+                <span className="text-sm font-bold text-white">{backLabel}</span>
               </button>
             )}
             <h1 className="text-2xl font-black tracking-tight leading-tight">{title}</h1>

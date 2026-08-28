@@ -60,8 +60,10 @@ export function HomeScreen({ go }) {
           className="max-w-2xl mx-auto px-5 pb-8"
           style={{ paddingTop: "max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem))" }}
         >
-          <Logo />
-          <p className="mt-5 text-slate-400 text-sm">Hi {displayName} 👋</p>
+          <div className="flex justify-center">
+            <Logo size="lg" />
+          </div>
+          <p className="mt-6 text-slate-400 text-sm">Hi {displayName} 👋</p>
           <h1 className="mt-0.5 text-2xl font-black tracking-tight">
             Ready to pass your test?
           </h1>
@@ -100,39 +102,39 @@ export function HomeScreen({ go }) {
               <button
                 key={path.id}
                 onClick={() => go({ screen: "path", pathId: path.id })}
-                className={`w-full text-left rounded-2xl p-5 transition active:scale-[0.99] ${
-                  dark ? "bg-blue-600 hover:bg-blue-500" : "bg-emerald-600 hover:bg-emerald-500"
+                className={`w-full text-left rounded-2xl px-4 py-4 shadow-sm transition active:scale-[0.99] ${
+                  dark
+                    ? "bg-blue-600 hover:bg-blue-500"
+                    : "bg-emerald-600 hover:bg-emerald-500"
                 }`}
               >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-                    <Icon size={24} className="text-white" />
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                    <Icon size={22} className="text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/70">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 leading-tight">
                       {path.tagline}
                     </p>
-                    <h2 className="text-xl font-black tracking-tight text-white">
+                    <h2 className="text-lg font-black tracking-tight text-white leading-tight">
                       {path.label}
                     </h2>
-                    <p className="mt-1 text-sm text-white/80 leading-snug">
-                      {path.blurb}
-                    </p>
-                    {p.started && (
-                      <div className="mt-3">
-                        <div className="flex justify-between text-[11px] font-bold text-white/70 mb-1">
-                          <span>Your progress</span>
-                          <span>{p.pct}%</span>
-                        </div>
-                        <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                          <div className="h-2 bg-white rounded-full transition-all duration-500"
-                               style={{ width: `${p.pct}%` }} />
-                        </div>
-                      </div>
-                    )}
                   </div>
-                  <ChevronRight size={20} className="text-white/60 shrink-0 mt-3" />
+                  <ChevronRight size={20} className="text-white/60 shrink-0" />
                 </div>
+
+                {p.started && (
+                  <div className="mt-3">
+                    <div className="flex justify-between text-[10px] font-bold text-white/70 mb-1">
+                      <span>Your progress</span>
+                      <span>{p.pct}%</span>
+                    </div>
+                    <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-white rounded-full transition-all duration-500"
+                           style={{ width: `${p.pct}%` }} />
+                    </div>
+                  </div>
+                )}
               </button>
             );
           })}

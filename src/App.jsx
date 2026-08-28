@@ -12,7 +12,7 @@
   ===========================================================================
 */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Home as HomeIcon, BookOpen, TrendingUp, User, Loader2 } from "lucide-react";
 import { AuthProvider, useAuth } from "./appAuth";
 import { ProgressProvider } from "./progressStore";
@@ -72,9 +72,46 @@ function AppShell() {
   };
 
   const view = stack[stack.length - 1];
+  const canGoBack = stack.length > 1;
+
+  /* ---------------------------------------------------------------------
+     SWIPE BACK
+
+     Only counts when the gesture starts within 32px of the left edge, the
+     way iOS does it. A swipe starting anywhere else would fight the
+     flashcard deck, which uses left/right swipes to change card.
+     --------------------------------------------------------------------- */
+  const swipe = useRef(null);
+
+  function onPointerDown(e) {
+    if (!canGoBack) return;
+    if (e.clientX > 32) return;
+    swipe.current = { x: e.clientX, y: e.clientY };
+  }
+
+  function onPointerMove(e) {
+    if (!swipe.current) return;
+    const dy = Math.abs(e.clientY - swipe.current.y);
+    const dx = e.clientX - swipe.current.x;
+    // Drifting vertically means they're scrolling, not going back.
+    if (dy > 60 && dy > Math.abs(dx)) swipe.current = null;
+  }
+
+  function onPointerUp(e) {
+    if (!swipe.current) return;
+    const dx = e.clientX - swipe.current.x;
+    swipe.current = null;
+    if (dx > 70) back();
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div
+      className="min-h-screen bg-slate-50 dark:bg-slate-900"
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={() => { swipe.current = null; }}
+    >
       <CurrentScreen view={view} go={go} back={back} theme={theme} toggleTheme={toggleTheme} />
       <TabBar tab={tab} onSelect={selectTab} hidden={isFullScreen(view)} />
     </div>
