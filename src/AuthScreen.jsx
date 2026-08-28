@@ -71,7 +71,13 @@ export default function AuthScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center px-5 py-10">
+    <div
+      className="min-h-screen bg-slate-900 flex flex-col items-center justify-center px-5"
+      style={{
+        paddingTop: "max(2.5rem, calc(env(safe-area-inset-top) + 1.5rem))",
+        paddingBottom: "max(2.5rem, calc(env(safe-area-inset-bottom) + 1.5rem))",
+      }}
+    >
       {/* Logo */}
       <div className="flex items-center gap-2.5 mb-2">
         <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center">

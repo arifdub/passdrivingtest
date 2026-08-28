@@ -114,7 +114,7 @@ const LEARNING = {
     ],
   },
   "driving.full.learning": {
-    title: "Driving Test — Learning Materials",
+    title: "Practical Driving Test — Learning Materials",
     intro: "What the tester is watching for, and how the test itself runs.",
     topics: [
       { label: "Test Day Procedure", blurb: "Documents, the vehicle check, the oral technical questions." },

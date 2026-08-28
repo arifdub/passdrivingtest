@@ -12,6 +12,7 @@ import React from "react";
 import {
   Car, GraduationCap, BookOpen, Layers, ListChecks, ClipboardCheck,
   TrendingUp, User, LogOut, Shield, ChevronRight, Sparkles, Trash2,
+  Smartphone, Download, Share2, Check,
 } from "lucide-react";
 import {
   APP_PATHS, PATH_BY_ID, SECTION_BY_ID, ALL_MODULES, isScored,
@@ -19,6 +20,7 @@ import {
 import { hasContent } from "./contentSources";
 import { useAuth } from "./appAuth";
 import { useProgress } from "./progressStore";
+import usePwaInstall from "./usePwaInstall";
 import {
   Logo, Screen, ScreenHeader, ProgressBar, ProgressRing, Tile, EmptyState,
   SecondaryButton, PrimaryButton,
@@ -34,6 +36,16 @@ const KIND_ICON = {
 
 const PATH_ICON = { driving: Car, adi: GraduationCap };
 
+/* Per-section icons so Theory and Practical don't look identical in the list.
+   Falls back to the path's icon for anything not listed. */
+const SECTION_ICON = {
+  "driving.theory": BookOpen,
+  "driving.full": Car,
+  "adi.theory": BookOpen,
+  "adi.practical": Car,
+  "adi.instructability": GraduationCap,
+};
+
 /* ===========================================================================
    HOME — screen 3 in the blueprint
    =========================================================================== */
@@ -44,7 +56,10 @@ export function HomeScreen({ go }) {
   return (
     <>
       <div className="bg-slate-900 text-white">
-        <div className="max-w-2xl mx-auto px-5 pt-5 pb-8">
+        <div
+          className="max-w-2xl mx-auto px-5 pb-8"
+          style={{ paddingTop: "max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem))" }}
+        >
           <Logo />
           <p className="mt-5 text-slate-400 text-sm">Hi {displayName} 👋</p>
           <h1 className="mt-0.5 text-2xl font-black tracking-tight">
@@ -209,7 +224,7 @@ export function PathScreen({ pathId, go, onBack }) {
             return (
               <Tile
                 key={section.id}
-                icon={PATH_ICON[pathId]}
+                icon={SECTION_ICON[section.id] || PATH_ICON[pathId]}
                 tone={path.accent}
                 label={section.label}
                 blurb={section.blurb}
@@ -453,6 +468,114 @@ function Stat({ label, value }) {
   );
 }
 
+/* ---------------------------------------------------------------------------
+   INSTALL TO HOME SCREEN
+
+   Android gets a real button. iPhone gets instructions, because Safari has no
+   install API — the only way in is the Share menu. Once it's installed the
+   card confirms that and stops taking up space.
+   --------------------------------------------------------------------------- */
+function InstallCard() {
+  const { state, promptInstall } = usePwaInstall();
+
+  if (state === "installed") {
+    return (
+      <div className="mt-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center gap-3">
+        <Check size={18} className="text-emerald-500 shrink-0" />
+        <div>
+          <p className="font-semibold text-slate-900 dark:text-white text-sm">
+            Installed on your home screen
+          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            You're running the app version.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (state === "prompt") {
+    return (
+      <div className="mt-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
+        <div className="flex items-center gap-3">
+          <Smartphone size={18} className="text-emerald-500 shrink-0" />
+          <h2 className="font-bold text-slate-900 dark:text-white">Install the app</h2>
+        </div>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          Add PassDrivingTest to your home screen for full-screen study with no
+          browser bar. Works offline for anything you've already opened.
+        </p>
+        <div className="mt-4">
+          <PrimaryButton onClick={promptInstall}>
+            <span className="inline-flex items-center gap-2">
+              <Download size={16} /> Add to Home Screen
+            </span>
+          </PrimaryButton>
+        </div>
+      </div>
+    );
+  }
+
+  if (state === "ios") {
+    return (
+      <div className="mt-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
+        <div className="flex items-center gap-3">
+          <Smartphone size={18} className="text-emerald-500 shrink-0" />
+          <h2 className="font-bold text-slate-900 dark:text-white">Add to your Home Screen</h2>
+        </div>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          Three taps in Safari and it works like a real app — full screen, no
+          address bar, its own icon.
+        </p>
+        <ol className="mt-4 space-y-3">
+          <InstallStep n="1">
+            Tap the <Share2 size={14} className="inline mx-0.5 -mt-0.5 text-blue-500" />
+            <span className="font-semibold"> Share</span> button at the bottom of Safari.
+          </InstallStep>
+          <InstallStep n="2">
+            Scroll down and tap <span className="font-semibold">Add to Home Screen</span>.
+          </InstallStep>
+          <InstallStep n="3">
+            Tap <span className="font-semibold">Add</span> in the top right.
+          </InstallStep>
+        </ol>
+        <p className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-xs text-slate-400 leading-relaxed">
+          This only works in Safari. If you're in Chrome or another browser on
+          iPhone, open passdrivingtest.ie in Safari first.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-start gap-3">
+      <Smartphone size={18} className="text-slate-400 shrink-0 mt-0.5" />
+      <div>
+        <p className="font-semibold text-slate-900 dark:text-white text-sm">
+          Study on your phone
+        </p>
+        <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          Open passdrivingtest.ie on your phone and you can add it to your home
+          screen as an app.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function InstallStep({ n, children }) {
+  return (
+    <li className="flex items-start gap-3">
+      <span className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs font-black text-slate-500 dark:text-slate-300 shrink-0">
+        {n}
+      </span>
+      <span className="text-sm text-slate-600 dark:text-slate-300 leading-snug pt-0.5">
+        {children}
+      </span>
+    </li>
+  );
+}
+
 /* ===========================================================================
    PROFILE & SETTINGS
    =========================================================================== */
@@ -522,6 +645,8 @@ export function ProfileScreen({ theme, toggleTheme }) {
         )}
 
         {/* Settings */}
+        <InstallCard />
+
         <div className="mt-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl divide-y divide-slate-100 dark:divide-slate-700">
           <button
             onClick={toggleTheme}

@@ -293,7 +293,10 @@ function QuizRun({ set, module, instantFeedback, onFinish, onQuit }) {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Bar */}
       <div className="bg-slate-900 text-white sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-5 py-3.5">
+        <div
+          className="max-w-2xl mx-auto px-5 pb-3.5"
+          style={{ paddingTop: "max(0.875rem, calc(env(safe-area-inset-top) + 0.375rem))" }}
+        >
           <div className="flex items-center justify-between gap-3 mb-2.5">
             <button
               onClick={onQuit}

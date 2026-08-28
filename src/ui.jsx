@@ -96,7 +96,14 @@ export function ProgressRing({ pct, size = 96, stroke = 8, tone = "emerald", lab
 export function ScreenHeader({ title, subtitle, onBack, backLabel = "Back", right }) {
   return (
     <div className="bg-slate-900 text-white">
-      <div className="max-w-2xl mx-auto px-5 pt-5 pb-7">
+      {/* env(safe-area-inset-top) is the height of the notch / Dynamic Island.
+          It's 0 on desktop and on Android, so max() keeps the normal padding
+          everywhere else. index.html already sets viewport-fit=cover, which is
+          what makes the inset available at all. */}
+      <div
+        className="max-w-2xl mx-auto px-5 pb-7"
+        style={{ paddingTop: "max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem))" }}
+      >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             {onBack && (

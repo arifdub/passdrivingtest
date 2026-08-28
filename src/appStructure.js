@@ -34,14 +34,14 @@ export const APP_PATHS = [
   {
     id: "driving",
     label: "Driving Test",
-    tagline: "Category B — car",
+    tagline: "Category B — theory & practical",
     blurb: "Everything for your theory test and your practical driving test.",
     accent: "emerald",
     sections: [
       {
         id: "driving.full",
-        label: "Full Driving Test Preparation",
-        blurb: "The practical test — manoeuvres, faults, test-day procedure.",
+        label: "Practical Driving Test",
+        blurb: "The on-the-road test — manoeuvres, faults, test-day procedure.",
         modules: [
           {
             id: "driving.full.learning",
@@ -83,7 +83,7 @@ export const APP_PATHS = [
       },
       {
         id: "driving.theory",
-        label: "Theory Test Preparation",
+        label: "Theory Test",
         blurb: "The written test you sit before you can take lessons on the road.",
         modules: [
           {
