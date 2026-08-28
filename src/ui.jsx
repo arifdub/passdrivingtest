@@ -11,20 +11,24 @@ import React from "react";
 import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
 
 /* ------------------------------------------------------------------------- */
-/* The real logo, from public/logo.png. Sized by height so it keeps its
-   aspect ratio whatever the container width. */
+/* The real logo, from public/logo.png.
+
+   Most sizes are set by height so the logo keeps its aspect ratio whatever
+   the container width. "hero" is the exception — it fills the width it's
+   given, which is what the top of the home screen wants. */
 export function Logo({ size = "md", className = "" }) {
-  const heights = {
-    sm: "h-8",
-    md: "h-12",
-    lg: "h-20",
-    xl: "h-24",
+  const sizes = {
+    sm: "h-8 w-auto",
+    md: "h-12 w-auto",
+    lg: "h-20 w-auto",
+    xl: "h-24 w-auto",
+    hero: "w-full h-auto",
   };
   return (
     <img
       src="/logo.png"
       alt="PassDrivingTest.ie — Learn. Practice. Pass."
-      className={`${heights[size] || heights.md} w-auto ${className}`}
+      className={`${sizes[size] || sizes.md} ${className}`}
       draggable={false}
     />
   );

@@ -80,7 +80,7 @@ export default function AuthScreen() {
       }}
     >
       {/* Logo */}
-      <Logo size="lg" className="mb-8" />
+      <Logo size="hero" className="max-w-xs mb-8" />
 
       {/* Card */}
       <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl">
