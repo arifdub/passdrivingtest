@@ -396,16 +396,14 @@ export default function FlashcardPlayer({ module, deck, onExit }) {
                   {/* BACK — pre-rotated so it faces outward once the card turns */}
                   <CardFace back>
                     {deck.cat[card.c] && (
-                      <CategoryPill cat={deck.cat[card.c]} />
+                      <CategoryPill cat={deck.cat[card.c]} back />
                     )}
-                    <p className={`leading-relaxed ${
-                      deck.imageCards
-                        ? "text-xl font-bold text-slate-900 dark:text-white"
-                        : "text-base text-slate-700 dark:text-slate-200"
+                    <p className={`leading-relaxed text-white ${
+                      deck.imageCards ? "text-xl font-bold" : "text-base"
                     }`}>
                       {deck.imageCards ? card.name : card.a}
                     </p>
-                    <FaceHint>Tap to go back</FaceHint>
+                    <FaceHint back>Tap to go back</FaceHint>
                   </CardFace>
                 </div>
               </div>
@@ -457,11 +455,18 @@ export default function FlashcardPlayer({ module, deck, onExit }) {
 }
 
 /* One side of the card. backfaceVisibility hides whichever face is turned
-   away — without it you'd see the answer mirrored through the front. */
+   away — without it you'd see the answer mirrored through the front.
+
+   The back is red so there's never any doubt which side you're looking at,
+   even mid-flip or when glancing at it quickly. */
 function CardFace({ children, back }) {
   return (
     <div
-      className="absolute inset-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 flex flex-col items-center justify-center text-center"
+      className={`absolute inset-0 rounded-3xl p-6 flex flex-col items-center justify-center text-center border ${
+        back
+          ? "bg-red-600 dark:bg-red-700 border-red-700 dark:border-red-800"
+          : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+      }`}
       style={{
         backfaceVisibility: "hidden",
         WebkitBackfaceVisibility: "hidden",
@@ -473,17 +478,25 @@ function CardFace({ children, back }) {
   );
 }
 
-function CategoryPill({ cat }) {
+/* On the red back face the category's own colour would clash, so it becomes a
+   translucent white pill instead. */
+function CategoryPill({ cat, back }) {
   return (
-    <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full text-white mb-4 ${cat.swatch}`}>
+    <span
+      className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full text-white mb-4 ${
+        back ? "bg-white/25" : cat.swatch
+      }`}
+    >
       {cat.label}
     </span>
   );
 }
 
-function FaceHint({ children }) {
+function FaceHint({ children, back }) {
   return (
-    <span className="mt-6 text-[11px] font-bold uppercase tracking-widest text-slate-300 dark:text-slate-600">
+    <span className={`mt-6 text-[11px] font-bold uppercase tracking-widest ${
+      back ? "text-white/60" : "text-slate-300 dark:text-slate-600"
+    }`}>
       {children}
     </span>
   );
