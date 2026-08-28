@@ -60,7 +60,9 @@ export function HomeScreen({ go }) {
           className="max-w-2xl mx-auto px-5 pb-8"
           style={{ paddingTop: "max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem))" }}
         >
-          <Logo size="hero" className="w-[45%] max-w-[190px]" />
+          <div className="flex justify-center">
+            <Logo size="hero" className="w-[45%] max-w-[190px]" />
+          </div>
           <p className="mt-5 text-slate-400 text-sm">Hi {displayName} 👋</p>
           <h1 className="mt-0.5 text-2xl font-black tracking-tight">
             Ready to pass your test?
