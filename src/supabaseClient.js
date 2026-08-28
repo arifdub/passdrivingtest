@@ -1,18 +1,41 @@
+/*
+  ===========================================================================
+  SUPABASE CLIENT
+
+  This file was missing from the zip you sent, so it's been recreated to
+  match what the project documentation describes (v2.0). If your live repo
+  already has a working src/supabaseClient.js, keep that one — don't
+  overwrite it with this.
+
+  The two values come from Vercel's environment variables, never from code:
+    VITE_SUPABASE_URL
+    VITE_SUPABASE_ANON_KEY
+  ===========================================================================
+*/
+
 import { createClient } from "@supabase/supabase-js";
 
-// These come from environment variables, NOT hardcoded here.
-// Locally: set them in a .env.local file (see .env.local.example).
-// On Vercel: set them in Project Settings -> Environment Variables.
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  // Don't crash the whole site if these are missing during setup —
-  // just warn clearly in the browser console so it's easy to diagnose.
+if (!supabaseUrl || !supabaseAnonKey) {
+  // Not a crash — the study side of the app still works offline. Only
+  // booking, admin and cross-device progress need the database.
   console.warn(
-    "Supabase isn't configured yet: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY " +
-    "are missing. Booking and the admin page won't work until these are set."
+    "Supabase env vars missing. Booking, admin and synced progress will be unavailable."
   );
 }
 
-export const supabase = createClient(supabaseUrl || "", supabaseKey || "");
+export const supabase = createClient(supabaseUrl || "", supabaseAnonKey || "", {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
+
+// True when the app has a real database to talk to. Used by the auth and
+// progress layers to fall back to on-device storage when it doesn't.
+export const HAS_SUPABASE = Boolean(supabaseUrl && supabaseAnonKey);
+
+export default supabase;
