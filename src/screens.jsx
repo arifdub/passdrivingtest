@@ -64,7 +64,7 @@ export function HomeScreen({ go }) {
               width — big enough to lead the screen, small enough to leave the
               two main buttons above the fold. */}
           <div className="flex justify-center">
-            <Logo size="hero" className="w-[62%] max-w-[260px]" />
+            <Logo size="hero" className="w-[50%] max-w-[210px]" />
           </div>
           <p className="mt-5 text-slate-400 text-sm">Hi {displayName} 👋</p>
           <h1 className="mt-0.5 text-2xl font-black tracking-tight">
