@@ -60,11 +60,11 @@ export function HomeScreen({ go }) {
           className="max-w-2xl mx-auto px-5 pb-8"
           style={{ paddingTop: "max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem))" }}
         >
-          {/* -mx-2 pulls the logo slightly past the screen's normal padding
-              so it sits close to the edges without touching them. max-w-md
-              stops it becoming absurd on a tablet or desktop. */}
-          <div className="flex justify-center -mx-2">
-            <Logo size="hero" className="max-w-md" />
+          {/* Sized to sit comfortably between the old small version and full
+              width — big enough to lead the screen, small enough to leave the
+              two main buttons above the fold. */}
+          <div className="flex justify-center">
+            <Logo size="hero" className="w-[62%] max-w-[260px]" />
           </div>
           <p className="mt-5 text-slate-400 text-sm">Hi {displayName} 👋</p>
           <h1 className="mt-0.5 text-2xl font-black tracking-tight">
