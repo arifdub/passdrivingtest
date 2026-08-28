@@ -134,7 +134,7 @@ export function ScreenHeader({ title, subtitle, onBack, backLabel = "Back", righ
 /* ------------------------------------------------------------------------- */
 export function Screen({ children }) {
   return (
-    <div className="max-w-2xl mx-auto px-5 py-6 pb-28">
+    <div className="max-w-2xl mx-auto px-5 pt-5 pb-28">
       {children}
     </div>
   );

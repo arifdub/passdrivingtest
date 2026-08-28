@@ -57,13 +57,13 @@ export function HomeScreen({ go }) {
     <>
       <div className="bg-slate-900 text-white">
         <div
-          className="max-w-2xl mx-auto px-5 pb-8"
+          className="max-w-2xl mx-auto px-5 pb-6"
           style={{ paddingTop: "max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem))" }}
         >
           <div className="flex justify-center">
             <Logo size="hero" className="w-[45%] max-w-[190px]" />
           </div>
-          <p className="mt-5 text-slate-400 text-sm">Hi {displayName} 👋</p>
+          <p className="mt-4 text-slate-400 text-sm">Hi {displayName} 👋</p>
           <h1 className="mt-0.5 text-2xl font-black tracking-tight">
             Ready to pass your test?
           </h1>
@@ -72,8 +72,8 @@ export function HomeScreen({ go }) {
 
       <Screen>
         {/* Overall */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex items-center gap-5 -mt-12 shadow-lg">
-          <ProgressRing pct={overall.averagePct} size={84} stroke={7} />
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center gap-4 -mt-10 shadow-lg">
+          <ProgressRing pct={overall.averagePct} size={72} stroke={6} />
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
               Overall progress
@@ -89,11 +89,11 @@ export function HomeScreen({ go }) {
         </div>
 
         {/* The two paths */}
-        <p className="mt-7 mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">
+        <p className="mt-6 mb-2.5 text-xs font-bold uppercase tracking-widest text-slate-400">
           Choose your path
         </p>
 
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {APP_PATHS.map(path => {
             const Icon = PATH_ICON[path.id] || Car;
             const p = getPath(path.id);
@@ -102,7 +102,7 @@ export function HomeScreen({ go }) {
               <button
                 key={path.id}
                 onClick={() => go({ screen: "path", pathId: path.id })}
-                className={`w-full text-left rounded-2xl px-4 py-4 shadow-sm transition active:scale-[0.99] ${
+                className={`w-full text-left rounded-2xl px-4 py-3.5 shadow-sm transition active:scale-[0.99] ${
                   dark
                     ? "bg-blue-600 hover:bg-blue-500"
                     : "bg-emerald-600 hover:bg-emerald-500"
@@ -124,7 +124,7 @@ export function HomeScreen({ go }) {
                 </div>
 
                 {p.started && (
-                  <div className="mt-3">
+                  <div className="mt-2.5">
                     <div className="flex justify-between text-[10px] font-bold text-white/70 mb-1">
                       <span>Your progress</span>
                       <span>{p.pct}%</span>
@@ -143,7 +143,7 @@ export function HomeScreen({ go }) {
         {/* Weakest topics */}
         {weakest.length > 0 && (
           <>
-            <p className="mt-7 mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">
+            <p className="mt-6 mb-2.5 text-xs font-bold uppercase tracking-widest text-slate-400">
               Your weakest topics
             </p>
             <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl divide-y divide-slate-100 dark:divide-slate-700">
