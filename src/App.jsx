@@ -191,7 +191,7 @@ function TabBar({ tab, onSelect, hidden }) {
    GATE
    =========================================================================== */
 function Gate() {
-  const { loading, isSignedIn } = useAuth();
+  const { loading, hasAccess } = useAuth();
 
   if (loading) {
     return (
@@ -202,7 +202,7 @@ function Gate() {
     );
   }
 
-  if (!isSignedIn) return <AuthScreen />;
+  if (!hasAccess) return <AuthScreen />;
 
   return (
     <ProgressProvider>

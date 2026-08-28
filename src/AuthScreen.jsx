@@ -8,11 +8,11 @@
 */
 
 import React, { useState } from "react";
-import { CheckCircle2, Loader2, Mail, Lock, User as UserIcon, AlertCircle } from "lucide-react";
+import { CheckCircle2, Loader2, Mail, Lock, User as UserIcon, AlertCircle, ArrowRight } from "lucide-react";
 import { useAuth } from "./appAuth";
 
 export default function AuthScreen() {
-  const { signIn, signUp, resetPassword, mode } = useAuth();
+  const { signIn, signUp, resetPassword, continueAsGuest, mode } = useAuth();
 
   const [tab, setTab] = useState("login"); // login | signup
   const [fullName, setFullName] = useState("");
@@ -180,6 +180,23 @@ export default function AuthScreen() {
             {isSignup ? "Sign in" : "Sign up"}
           </button>
         </p>
+
+        {/* Guest entry. Deliberately below the form and quieter than the main
+            button — most people should make an account, but nobody should be
+            stopped at the door if they'd rather just start studying. */}
+        <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-700">
+          <button
+            type="button"
+            onClick={continueAsGuest}
+            className="w-full flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-600 hover:border-slate-300 text-slate-700 dark:text-slate-200 font-bold py-3 rounded-xl transition"
+          >
+            Skip for now <ArrowRight size={16} />
+          </button>
+          <p className="mt-2.5 text-center text-xs text-slate-400 leading-relaxed">
+            Start studying straight away. Your progress saves on this device,
+            and you can create an account later to keep it.
+          </p>
+        </div>
       </div>
 
       <p className="mt-6 text-xs text-slate-500 text-center max-w-sm">

@@ -21,7 +21,7 @@ import { useAuth } from "./appAuth";
 import { useProgress } from "./progressStore";
 import {
   Logo, Screen, ScreenHeader, ProgressBar, ProgressRing, Tile, EmptyState,
-  SecondaryButton,
+  SecondaryButton, PrimaryButton,
 } from "./ui";
 
 /* Icons by module kind — the blueprint's four tile types. */
@@ -38,7 +38,7 @@ const PATH_ICON = { driving: Car, adi: GraduationCap };
    HOME — screen 3 in the blueprint
    =========================================================================== */
 export function HomeScreen({ go }) {
-  const { displayName, subscription } = useAuth();
+  const { displayName, subscription, isGuest, exitGuest } = useAuth();
   const { getPath, overall, weakest } = useProgress();
 
   return (
@@ -152,11 +152,31 @@ export function HomeScreen({ go }) {
           </>
         )}
 
-        <p className="mt-6 text-center text-xs text-slate-400">
-          Subscription: <span className="font-bold text-emerald-600 dark:text-emerald-400">
-            {subscription.label}
-          </span>
-        </p>
+        {/* Only nag once they've actually got something to lose. */}
+        {isGuest && overall.testsTaken > 0 && (
+          <button
+            onClick={exitGuest}
+            className="mt-6 w-full text-left bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-2xl p-4 flex items-center gap-3"
+          >
+            <div className="flex-1">
+              <p className="font-bold text-slate-900 dark:text-white text-sm">
+                Save your progress
+              </p>
+              <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300 leading-snug">
+                Create an account and everything you've studied comes with you.
+              </p>
+            </div>
+            <ChevronRight size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+          </button>
+        )}
+
+        {!isGuest && (
+          <p className="mt-6 text-center text-xs text-slate-400">
+            Subscription: <span className="font-bold text-emerald-600 dark:text-emerald-400">
+              {subscription.label}
+            </span>
+          </p>
+        )}
       </Screen>
     </>
   );
@@ -437,7 +457,7 @@ function Stat({ label, value }) {
    PROFILE & SETTINGS
    =========================================================================== */
 export function ProfileScreen({ theme, toggleTheme }) {
-  const { profile, displayName, subscription, signOut, mode } = useAuth();
+  const { profile, displayName, subscription, signOut, mode, isGuest, exitGuest } = useAuth();
   const { resetAll, overall } = useProgress();
 
   async function handleReset() {
@@ -456,30 +476,50 @@ export function ProfileScreen({ theme, toggleTheme }) {
             <User size={24} className="text-slate-500 dark:text-slate-300" />
           </div>
           <div className="min-w-0">
-            <p className="font-bold text-slate-900 dark:text-white truncate">{displayName}</p>
+            <p className="font-bold text-slate-900 dark:text-white truncate">
+              {isGuest ? "Studying as a guest" : displayName}
+            </p>
             <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
-              {profile?.email}
+              {isGuest ? "No account yet" : profile?.email}
             </p>
           </div>
         </div>
 
-        {/* Subscription */}
-        <div className="mt-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Shield size={18} className="text-emerald-500" />
-              <span className="font-semibold text-slate-900 dark:text-white">Subscription</span>
-            </div>
-            <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400">
-              {subscription.label}
-            </span>
-          </div>
-          {subscription.note && (
-            <p className="mt-2.5 text-sm text-slate-500 dark:text-slate-400">
-              {subscription.note}
+        {/* Guests get the pitch for an account instead of a subscription card.
+            Their progress is already saved locally, so signing up keeps it
+            rather than starting them over. */}
+        {isGuest ? (
+          <div className="mt-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-2xl p-5">
+            <h2 className="font-bold text-slate-900 dark:text-white">
+              Keep your progress safe
+            </h2>
+            <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              Right now your scores live on this device only — clear your
+              browser or switch phone and they're gone. Create an account and
+              everything you've already done comes with you.
             </p>
-          )}
-        </div>
+            <div className="mt-4">
+              <PrimaryButton onClick={exitGuest}>Create an account</PrimaryButton>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Shield size={18} className="text-emerald-500" />
+                <span className="font-semibold text-slate-900 dark:text-white">Subscription</span>
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400">
+                {subscription.label}
+              </span>
+            </div>
+            {subscription.note && (
+              <p className="mt-2.5 text-sm text-slate-500 dark:text-slate-400">
+                {subscription.note}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Settings */}
         <div className="mt-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl divide-y divide-slate-100 dark:divide-slate-700">
@@ -502,13 +542,15 @@ export function ProfileScreen({ theme, toggleTheme }) {
           </button>
         </div>
 
-        <div className="mt-4">
-          <SecondaryButton onClick={signOut}>
-            <span className="inline-flex items-center gap-2 text-red-600 dark:text-red-400">
-              <LogOut size={16} /> Log out
-            </span>
-          </SecondaryButton>
-        </div>
+        {!isGuest && (
+          <div className="mt-4">
+            <SecondaryButton onClick={signOut}>
+              <span className="inline-flex items-center gap-2 text-red-600 dark:text-red-400">
+                <LogOut size={16} /> Log out
+              </span>
+            </SecondaryButton>
+          </div>
+        )}
 
         <p className="mt-6 text-center text-xs text-slate-400">
           {overall.testsTaken} test{overall.testsTaken === 1 ? "" : "s"} taken

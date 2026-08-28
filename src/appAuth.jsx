@@ -35,6 +35,7 @@ export const SUBSCRIPTION_REQUIRED = false;
 
 const LOCAL_USERS_KEY = "pdt-local-users-v1";
 const LOCAL_SESSION_KEY = "pdt-local-session-v1";
+const GUEST_KEY = "pdt-guest-v1";
 
 const AuthContext = createContext(null);
 
@@ -73,6 +74,7 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [guest, setGuest] = useState(() => readLocal(GUEST_KEY, false));
 
   /* ---- load the profile row that goes with a Supabase user ---- */
   const loadProfile = useCallback(async (u) => {
@@ -175,6 +177,7 @@ export function AuthProvider({ children }) {
       users[key] = { ...u, password };
       writeLocal(LOCAL_USERS_KEY, users);
       writeLocal(LOCAL_SESSION_KEY, u);
+      leaveGuest();
       setUser(u);
       await loadProfile(u);
       return { ok: true };
@@ -196,6 +199,7 @@ export function AuthProvider({ children }) {
     if (!data.session) {
       return { ok: true, needsConfirmation: true };
     }
+    leaveGuest();
     return { ok: true };
   }, [loadProfile]);
 
@@ -214,6 +218,7 @@ export function AuthProvider({ children }) {
       }
       const u = { id: found.id, email: found.email, full_name: found.full_name };
       writeLocal(LOCAL_SESSION_KEY, u);
+      leaveGuest();
       setUser(u);
       await loadProfile(u);
       return { ok: true };
@@ -228,11 +233,32 @@ export function AuthProvider({ children }) {
       setError(err.message);
       return { ok: false, error: err.message };
     }
+    leaveGuest();
     return { ok: true };
   }, [loadProfile]);
 
+  /* ---- guest mode ----
+     Study without an account. Progress is written to this device only; the
+     moment they do sign up, the progress store merges it into the new
+     account, so nothing studied as a guest is lost. */
+  const continueAsGuest = useCallback(() => {
+    writeLocal(GUEST_KEY, true);
+    setGuest(true);
+    setError(null);
+  }, []);
+
+  /* Leaves guest mode without wiping progress — used both when an account is
+     created and when a guest taps "Create an account" from the profile page. */
+  function leaveGuest() {
+    writeLocal(GUEST_KEY, false);
+    setGuest(false);
+  }
+
+  const exitGuest = useCallback(() => leaveGuest(), []);
+
   /* ---- sign out ---- */
   const signOut = useCallback(async () => {
+    leaveGuest();
     if (!HAS_SUPABASE) {
       writeLocal(LOCAL_SESSION_KEY, null);
       setUser(null);
@@ -282,17 +308,25 @@ export function AuthProvider({ children }) {
     error,
     setError,
     isSignedIn: Boolean(user),
+    isGuest: guest && !user,
+    // What the app gate checks: a real account OR guest mode.
+    hasAccess: Boolean(user) || guest,
     displayName:
-      profile?.full_name?.trim() ||
-      user?.email?.split("@")[0] ||
-      "there",
+      (guest && !user)
+        ? "there"
+        : profile?.full_name?.trim() ||
+          user?.email?.split("@")[0] ||
+          "there",
     subscription,
     mode: HAS_SUPABASE ? "supabase" : "local",
     signUp,
     signIn,
     signOut,
     resetPassword,
-  }), [user, profile, loading, error, subscription, signUp, signIn, signOut, resetPassword]);
+    continueAsGuest,
+    exitGuest,
+  }), [user, profile, loading, error, subscription, guest, signUp, signIn,
+       signOut, resetPassword, continueAsGuest, exitGuest]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
